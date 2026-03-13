@@ -55,7 +55,7 @@
     navToggle.addEventListener('click', () => {
       const expanded = navToggle.getAttribute('aria-expanded') === 'true' || false;
       navToggle.setAttribute('aria-expanded', !expanded);
-      navMenu.classList.toggle('hidden');
+      navMenu.classList.toggle('open');
     });
   </script>
 </body>

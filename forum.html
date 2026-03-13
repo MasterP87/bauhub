@@ -29,7 +29,7 @@
 
   <main class="forum-container">
     <h1>Forum</h1>
-    <div class="forum-tabs" role="tablist">
+    <div class="tabs forum-tabs" role="tablist">
       <button role="tab" aria-selected="true" class="active" data-tab="preise">Preise &amp; Kosten</button>
       <button role="tab" aria-selected="false" data-tab="regulierungen">Regulierungen 2026</button>
       <button role="tab" aria-selected="false" data-tab="tipps">Tipps &amp; Tricks</button>
@@ -37,7 +37,7 @@
     </div>
     <div id="forum-panels">
       <!-- Preise & Kosten Panel -->
-      <div class="forum-panel" id="preise" role="tabpanel">
+      <div class="tab-panel forum-panel active" id="preise" role="tabpanel">
         <article class="forum-thread">
           <h3>Wie kalkuliere ich fair?</h3>
           <p>Welche Marge ist im Jahr 2026 für Mauerarbeiten angemessen?</p>
@@ -48,21 +48,21 @@
         </article>
       </div>
       <!-- Regulierungen 2026 Panel -->
-      <div class="forum-panel hidden" id="regulierungen" role="tabpanel">
+      <div class="tab-panel forum-panel" id="regulierungen" role="tabpanel">
         <article class="forum-thread">
           <h3>Neue Sicherheitsnormen</h3>
           <p>Welche Änderungen gibt es bei den Sicherheitsnormen im Bau 2026?</p>
         </article>
       </div>
       <!-- Tipps & Tricks Panel -->
-      <div class="forum-panel hidden" id="tipps" role="tabpanel">
+      <div class="tab-panel forum-panel" id="tipps" role="tabpanel">
         <article class="forum-thread">
           <h3>Effiziente Baustellenplanung</h3>
           <p>Wie plant ihr eure Baustellen effizient, um Zeit zu sparen?</p>
         </article>
       </div>
       <!-- Nachhaltiges Bauen Panel -->
-      <div class="forum-panel hidden" id="nachhaltig" role="tabpanel">
+      <div class="tab-panel forum-panel" id="nachhaltig" role="tabpanel">
         <article class="forum-thread">
           <h3>Recycling von Baumaterialien</h3>
           <p>Erfahrungen und Tipps zum Einsatz von Recyclingmaterialien.</p>
@@ -72,10 +72,10 @@
     <div class="new-post">
       <h2>Neuen Beitrag erstellen</h2>
       <form id="newPostForm">
-        <input type="text" name="post-title" placeholder="Titel" required>
-        <textarea name="post-content" placeholder="Text" rows="4" required></textarea>
-        <input type="file" name="post-images" accept="image/*" multiple>
-        <button type="submit">Beitrag posten</button>
+        <div class="field"><label for="post-title">Titel *</label><input type="text" id="post-title" name="post-title" placeholder="Kurzer, aussagekräftiger Titel" required></div>
+        <div class="field"><label for="post-content">Beitrag *</label><textarea id="post-content" name="post-content" rows="5" placeholder="Beschreiben Sie Ihr Thema ausführlich..." required></textarea></div>
+        <div class="field"><label for="post-images">Bilder (optional)</label><input type="file" id="post-images" name="post-images" accept="image/*" multiple></div>
+        <button type="submit" class="btn btn-primary">Beitrag posten</button>
       </form>
     </div>
   </main>
@@ -104,7 +104,7 @@
     navToggle.addEventListener('click', () => {
       const expanded = navToggle.getAttribute('aria-expanded') === 'true' || false;
       navToggle.setAttribute('aria-expanded', !expanded);
-      navMenu.classList.toggle('hidden');
+      navMenu.classList.toggle('open');
     });
 
     // Logout handler
@@ -125,10 +125,10 @@
           t.classList.remove('active');
           t.setAttribute('aria-selected', 'false');
         });
-        panels.forEach(p => p.classList.add('hidden'));
+        panels.forEach(p => p.classList.remove('active'));
         tab.classList.add('active');
         tab.setAttribute('aria-selected', 'true');
-        document.getElementById(tab.dataset.tab).classList.remove('hidden');
+        document.getElementById(tab.dataset.tab).classList.add('active');
       });
     });
 

@@ -66,9 +66,13 @@
             <option value="Altbausanierung">Altbausanierung</option>
             <option value="Bauleitung">Bauleitung</option>
           </select>
+          <p class="multi-hint">Strg+Klick für Mehrfachauswahl</p>
         </div>
         <div class="filter-group">
-          <label for="radius">PLZ-Radius: <output id="radiusValue">50</output> km</label>
+          <div class="radius-display">
+            <label for="radius">PLZ-Radius</label>
+            <strong><output id="radiusValue">50</output> km</strong>
+          </div>
           <input type="range" id="radius" name="radius" min="0" max="200" step="10" value="50" oninput="document.getElementById('radiusValue').value=this.value">
         </div>
         <div class="filter-group">
@@ -165,7 +169,7 @@
     navToggle.addEventListener('click', () => {
       const expanded = navToggle.getAttribute('aria-expanded') === 'true' || false;
       navToggle.setAttribute('aria-expanded', !expanded);
-      navMenu.classList.toggle('hidden');
+      navMenu.classList.toggle('open');
     });
 
     // Logout handler

@@ -27,15 +27,13 @@
     </div>
   </header>
 
-  <main class="profile-container">
+  <main class="profile-container page-wrapper">
     <h1>Mein Profil bearbeiten</h1>
+    <div id="profileStatus" class="alert" style="margin-bottom:1rem"></div>
     <form id="profileForm">
-      <label for="company">Firmenname</label>
-      <input type="text" id="company" name="company" value="" required>
-      <label for="plz">PLZ</label>
-      <input type="text" id="plz" name="plz" pattern="\d{5}" value="" required>
-      <label for="trades">Gewerk(e)</label>
-      <select id="trades" name="trades" multiple size="5">
+      <div class="field"><label for="company">Firmenname *</label><input type="text" id="company" name="company" required></div>
+      <div class="field"><label for="plz">PLZ (5-stellig) *</label><input type="text" id="plz" name="plz" pattern="\d{5}" maxlength="5" required></div>
+      <div class="field"><label for="trades">Gewerk(e) *</label><select id="trades" name="trades" multiple size="6">
         <option value="Mauerer">Mauerer</option>
         <option value="Betonbauer">Beton- und Stahlbetonbauer</option>
         <option value="Zimmerer">Zimmerer</option>
@@ -65,15 +63,11 @@
         <option value="Statiker">Statiker / Tragwerksplanung</option>
         <option value="Altbausanierung">Altbausanierung</option>
         <option value="Bauleitung">Bauleitung</option>
-      </select>
-      <label for="description">Beschreibung</label>
-      <textarea id="description" name="description"></textarea>
-      <label for="portfolio">Portfolio Fotos (max 20)</label>
-      <input type="file" id="portfolio" name="portfolio" accept="image/*" multiple>
-      <label for="availability">Verfügbarkeitskalender</label>
-      <input type="date" id="availability" name="availability">
-      <button type="button" class="btn btn-accent" style="margin-top:0.5rem;">iCal Export</button>
-      <button type="submit" class="btn btn-primary" style="margin-top:1rem;">Änderungen speichern</button>
+      </select><p class="multi-hint">Strg+Klick (Windows) oder ⌘+Klick (Mac) für Mehrfachauswahl</p></div>
+      <div class="field"><label for="description">Beschreibung</label><textarea id="description" name="description" rows="4" placeholder="Kurze Vorstellung Ihres Unternehmens..."></textarea></div>
+      <div class="field"><label for="portfolio">Portfolio-Fotos (max. 20)</label><input type="file" id="portfolio" name="portfolio" accept="image/*" multiple><p class="field-hint">JPG, PNG oder WebP, max. 5 MB pro Bild</p></div>
+      <div class="field"><label for="availability">Nächster freier Termin</label><input type="date" id="availability" name="availability"></div>
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:0.5rem"><button type="button" class="btn btn-outline" id="icalBtn" title="Verfügbarkeitskalender als iCal-Datei herunterladen">📅 Kalender exportieren (iCal)</button><button type="submit" class="btn btn-primary">Änderungen speichern</button></div>
     </form>
   </main>
 
@@ -101,7 +95,7 @@
     navToggle.addEventListener('click', () => {
       const expanded = navToggle.getAttribute('aria-expanded') === 'true' || false;
       navToggle.setAttribute('aria-expanded', !expanded);
-      navMenu.classList.toggle('hidden');
+      navMenu.classList.toggle('open');
     });
 
     // Logout handler

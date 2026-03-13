@@ -72,6 +72,7 @@
           <option value="Altbausanierung">Altbausanierung</option>
           <option value="Bauleitung">Bauleitung</option>
         </select>
+        <p class="multi-hint">Strg+Klick (Windows) oder ⌘+Klick (Mac) für Mehrfachauswahl</p>
         <label for="project-plz">PLZ</label>
         <input type="text" id="project-plz" name="plz" pattern="\d{5}" required>
         <label for="project-radius">Radius (km)</label>
@@ -93,6 +94,7 @@
       <section class="step hidden" data-step="3">
         <label for="description">Beschreibung</label>
         <textarea id="description" name="description" minlength="200" required></textarea>
+        <div class="char-counter" id="descCounter">0 / mind. 200 Zeichen</div>
         <label for="photos">Fotos hochladen</label>
         <input type="file" id="photos" name="photos" accept="image/*" multiple>
       </section>
@@ -134,7 +136,7 @@
     navToggle.addEventListener('click', () => {
       const expanded = navToggle.getAttribute('aria-expanded') === 'true' || false;
       navToggle.setAttribute('aria-expanded', !expanded);
-      navMenu.classList.toggle('hidden');
+      navMenu.classList.toggle('open');
     });
 
     // Logout handler
@@ -196,6 +198,17 @@
         BauHubAuth.setLoading(submitBtn, false);
       }
     });
+
+    // Character counter for description
+    const descField = document.getElementById('description');
+    const descCounter = document.getElementById('descCounter');
+    if (descField && descCounter) {
+      descField.addEventListener('input', () => {
+        const len = descField.value.length;
+        descCounter.textContent = `${len} / mind. 200 Zeichen`;
+        descCounter.style.color = len >= 200 ? '#16a34a' : '#6b7280';
+      });
+    }
 
     // Initialize wizard
     showStep(currentStep);

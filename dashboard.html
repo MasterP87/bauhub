@@ -118,7 +118,7 @@
     document.querySelector('.nav-toggle').addEventListener('click', function() {
       const exp = this.getAttribute('aria-expanded') === 'true';
       this.setAttribute('aria-expanded', !exp);
-      document.querySelector('.nav-menu').classList.toggle('hidden');
+      document.querySelector('.nav-menu').classList.toggle('open');
     });
 
     // Dashboard Tabs

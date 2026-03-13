@@ -27,7 +27,7 @@
   </header>
 
   <main>
-    <header class="project-header">
+    <header class="project-detail-header">
       <h1>Neubau Wohnkomplex</h1>
       <div class="project-meta">
         <span>Status: <strong>Offen</strong></span>
@@ -37,7 +37,7 @@
       </div>
     </header>
     <div class="project-body">
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis cursus, risus et pulvinar tristique, lorem ipsum faucibus nisi, a pretium lorem dolor vitae est. Nullam nec justo sed dolor hendrerit luctus. Integer ut malesuada mi. Morbi sed lacus vitae ipsum dapibus ullamcorper. Proin non hendrerit magna.</p>
+      <p>Dieses Projekt befindet sich in der Ausschreibungsphase. Detaillierte Projektbeschreibungen werden nach Anmeldung sichtbar.</p>
       <div class="carousel" aria-label="Projektfotos">
         <img src="images/placeholder.png" alt="Projektfoto 1">
         <img src="images/placeholder.png" alt="Projektfoto 2">
@@ -66,6 +66,7 @@
         <button type="button" class="btn-cancel" id="cancelApply">Abbrechen</button>
         <button type="button" class="btn-submit" id="submitApply">Bewerben</button>
       </div>
+      <div id="applyStatus" class="alert" style="margin-top:0.75rem"></div>
       <p class="disclaimer" style="font-size:0.75rem; margin-top:1rem;">Mit dem Absenden akzeptieren Sie den <a href="haftungsausschluss.html">Haftungsausschluss</a>.</p>
     </div>
   </div>
@@ -84,6 +85,9 @@
     </div>
   </footer>
 
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
   <script>
     // Nav toggle
     const navToggle = document.querySelector('.nav-toggle');
@@ -91,7 +95,7 @@
     navToggle.addEventListener('click', () => {
       const expanded = navToggle.getAttribute('aria-expanded') === 'true' || false;
       navToggle.setAttribute('aria-expanded', !expanded);
-      navMenu.classList.toggle('hidden');
+      navMenu.classList.toggle('open');
     });
     // Modal logic
     const applyBtn = document.getElementById('applyBtn');
@@ -104,21 +108,7 @@
     cancelBtn.addEventListener('click', () => {
       modal.classList.add('hidden');
     });
-    // Supabase API integration for project application
-    const SUPABASE_URL = 'https://your-project-ref.supabase.co';
-    const SUPABASE_KEY = 'public-anon-key';
-    async function callAPI(endpoint, data) {
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${SUPABASE_KEY}`,
-          'Content-Type': 'application/json',
-          'X-API-Key': 'ki-agent-key-123'
-        },
-        body: JSON.stringify(data)
-      });
-      return await res.json();
-    }
+    // API integration for project application
     submitBtn.addEventListener('click', async () => {
       const message = document.getElementById('message').value;
       const availability = document.getElementById('availability').value;
@@ -126,11 +116,11 @@
       const projectId = 'project-id-placeholder';
       const payload = { projectId, message, availability };
       try {
-        const result = await callAPI('projects-apply', payload);
-        alert('Bewerbung an KI gesendet.');
+        const result = await BauHubAPI.projects.apply(payload);
+        document.getElementById('applyStatus').textContent = 'Bewerbung erfolgreich gesendet!'; document.getElementById('applyStatus').style.display='block';
       } catch (err) {
         console.error(err);
-        alert('Fehler beim Senden der Bewerbung.');
+        document.getElementById('applyStatus').textContent = 'Fehler beim Senden.'; document.getElementById('applyStatus').className='alert alert-error show';
       }
       modal.classList.add('hidden');
     });
