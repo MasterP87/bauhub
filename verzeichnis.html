@@ -68,8 +68,8 @@
           </select>
         </div>
         <div class="filter-group">
-          <label for="radius">PLZ-Radius (km)</label>
-          <input type="range" id="radius" name="radius" min="0" max="200" step="10" value="50" aria-valuetext="50 km">
+          <label for="radius">PLZ-Radius: <output id="radiusValue">50</output> km</label>
+          <input type="range" id="radius" name="radius" min="0" max="200" step="10" value="50" oninput="document.getElementById('radiusValue').value=this.value">
         </div>
         <div class="filter-group">
           <label for="rating">Bewertung</label>
@@ -83,7 +83,7 @@
           </select>
         </div>
         <div class="filter-group">
-          <label><input type="checkbox" name="verified"> Verifiziert</label>
+          <label class="checkbox-label"><input type="checkbox" name="verified"> Verifiziert</label>
         </div>
         <div class="filter-group">
           <label for="availability">Verfügbar ab</label>
