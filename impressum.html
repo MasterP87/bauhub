@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Impressum – BauHub</title>
+  <meta name="description" content="Impressum von BauHub: Angaben gemäß § 5 TMG einschließlich Ansprechpartner und Kontaktdaten.">
+  <meta property="og:title" content="Impressum – BauHub">
+  <meta property="og:description" content="Alle rechtlichen Angaben zu BauHub, inklusive Anbieterkennung und Kontaktinformationen.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header role="banner">
+    <div class="container nav">
+      <a href="index.html" class="nav-logo">BauHub</a>
+      <button class="nav-toggle" aria-label="Menü öffnen" aria-controls="primary-menu" aria-expanded="false">☰</button>
+      <nav id="primary-menu" class="nav-menu" aria-label="Hauptmenü">
+        <a href="index.html">Start</a>
+        <a href="verzeichnis.html">Verzeichnis</a>
+        <a href="projekt-erstellen.html">Projekt erstellen</a>
+        <a href="ressourcen.html">Ressourcen</a>
+        <a href="forum.html">Forum</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="login.html">Login/Registrierung</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="profile-container">
+    <h1>Impressum</h1>
+    <p>Angaben gemäß § 5 TMG:</p>
+    <!-- Impressum mit echten Kontaktdaten des Betreibers. -->
+    <p>BauHub Vermittler<br>Marcel&nbsp;Pillert<br>Kaubstraße&nbsp;10<br>44339&nbsp;Dortmund<br>Deutschland</p>
+    <p>Vertreten durch: Marcel&nbsp;Pillert</p>
+    <p>Kontakt:<br>E‑Mail: <a href="mailto:marcel.pillert@icloud.com">marcel.pillert@icloud.com</a></p>
+    <!-- Umsatzsteuer-ID vorerst entfernt; kann später ergänzt werden -->
+  </main>
+
+  <footer role="contentinfo">
+    <div class="container">
+      <nav class="footer-links" aria-label="Footer">
+        <a href="impressum.html" aria-current="page">Impressum</a>
+        <a href="datenschutz.html">Datenschutz</a>
+        <a href="agb.html">AGB</a>
+        <a href="haftungsausschluss.html">Haftungsausschluss</a>
+        <a href="contact.html">Kontakt</a>
+      </nav>
+      <p class="disclaimer">Reine Vermittlungsplattform – Haftung ausgeschlossen</p>
+    </div>
+  </footer>
+
+  <script>
+    const navToggle = document.querySelector('.nav-toggle');
+    const navMenu = document.querySelector('.nav-menu');
+    navToggle.addEventListener('click', () => {
+      const expanded = navToggle.getAttribute('aria-expanded') === 'true' || false;
+      navToggle.setAttribute('aria-expanded', !expanded);
+      navMenu.classList.toggle('hidden');
+    });
+  </script>
+</body>
+</html>

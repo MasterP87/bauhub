@@ -1,0 +1,92 @@
+{
+  "name": "BauHub – Project Matching (täglich)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 6 * * *" }] }
+      },
+      "id": "cron-trigger",
+      "name": "Täglich 06:00 Uhr",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/projects?status=eq.offen&matching_done=eq.false&select=*",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_ROLE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_ROLE_KEY }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "get-projects",
+      "name": "Supabase: Offene Projekte laden",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "=",
+        "include": "allFields"
+      },
+      "id": "split-projects",
+      "name": "Pro Projekt aufteilen",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/functions/v1/matching-run",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "requestMethod": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_ROLE_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "projectId", "value": "={{ $json.id }}" }
+          ]
+        },
+        "options": { "batching": { "batch": { "batchSize": 1, "batchInterval": 2000 } } }
+      },
+      "id": "run-matching",
+      "name": "Edge Function: matching-run",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = $input.all();\nconst total = results.length;\nconst success = results.filter(r => r.json.success).length;\nconsole.log(`Matching abgeschlossen: ${success}/${total} Projekte`);\nreturn [{ json: { total, success, failed: total - success } }];"
+      },
+      "id": "summary",
+      "name": "Zusammenfassung",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 300]
+    }
+  ],
+  "connections": {
+    "Täglich 06:00 Uhr": { "main": [[{ "node": "Supabase: Offene Projekte laden", "type": "main", "index": 0 }]] },
+    "Supabase: Offene Projekte laden": { "main": [[{ "node": "Pro Projekt aufteilen", "type": "main", "index": 0 }]] },
+    "Pro Projekt aufteilen": { "main": [[{ "node": "Edge Function: matching-run", "type": "main", "index": 0 }]] },
+    "Edge Function: matching-run": { "main": [[{ "node": "Zusammenfassung", "type": "main", "index": 0 }]] }
+  },
+  "active": true,
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "bauhub" }]
+}

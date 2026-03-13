@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BauHub – Verzeichnis</title>
+  <meta name="description" content="Finden Sie schnell Subunternehmer im Baugewerbe. Filter nach Gewerken, PLZ und Bewertungen im BauHub Verzeichnis.">
+  <meta property="og:title" content="BauHub – Verzeichnis">
+  <meta property="og:description" content="Durchsuchen Sie verifizierte Subunternehmer nach Gewerken, Postleitzahl, Bewertungen und Verfügbarkeit.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header role="banner">
+    <div class="container nav">
+      <a href="index.html" class="nav-logo">BauHub</a>
+      <button class="nav-toggle" aria-label="Menü öffnen" aria-controls="primary-menu" aria-expanded="false">☰</button>
+      <nav id="primary-menu" class="nav-menu" aria-label="Hauptmenü">
+        <a href="index.html">Start</a>
+        <a href="verzeichnis.html" aria-current="page">Verzeichnis</a>
+        <a href="projekt-erstellen.html">Projekt erstellen</a>
+        <a href="ressourcen.html">Ressourcen</a>
+        <a href="forum.html">Forum</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="mein-profil.html">Mein Profil</a>
+        <a href="#" data-logout>Abmelden</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="directory">
+    <!-- Sidebar filter -->
+    <aside class="sidebar" aria-label="Filter">
+      <h2 class="sr-only">Filter</h2>
+      <form id="filterForm">
+        <div class="filter-group">
+          <label for="gewerke">Gewerke</label>
+          <select id="gewerke" name="gewerke" multiple size="5" aria-label="Gewerk auswählen">
+            <option value="Mauerer">Mauerer</option>
+            <option value="Betonbauer">Beton- und Stahlbetonbauer</option>
+            <option value="Zimmerer">Zimmerer</option>
+            <option value="Dachdecker">Dachdecker</option>
+            <option value="Elektriker">Elektriker</option>
+            <option value="Sanitaer">Sanitär-, Heizungs- und Klimatechniker</option>
+            <option value="Maler">Maler und Lackierer</option>
+            <option value="Fliesenleger">Fliesen-, Platten- und Mosaikleger</option>
+            <option value="Tiefbauer">Tiefbauer</option>
+            <option value="Strassenbauer">Straßenbauer</option>
+            <option value="Geruestbauer">Gerüstbauer</option>
+            <option value="Tischler">Tischler</option>
+            <option value="Stahlbauer">Stahl- und Metallbauer</option>
+            <option value="Glasbauer">Glasbauer</option>
+            <option value="Bodenleger">Bodenleger</option>
+            <option value="Putzer">Putzer</option>
+            <option value="Stuckateur">Stuckateur</option>
+            <option value="Schlosser">Schlosser</option>
+            <option value="Klempner">Klempner</option>
+            <option value="Gartenbauer">Garten- und Landschaftsbauer</option>
+            <option value="Rohrleitungsbauer">Rohrleitungsbauer</option>
+            <option value="Isolierer">Isolierer</option>
+            <option value="Fassadenbauer">Fassadenbauer</option>
+            <option value="Energieberater">Energieberater</option>
+            <option value="Nachhaltigkeitsberater">Nachhaltigkeitsberater</option>
+            <option value="Baugeraete">Baugeräteführer</option>
+            <option value="Statiker">Statiker / Tragwerksplanung</option>
+            <option value="Altbausanierung">Altbausanierung</option>
+            <option value="Bauleitung">Bauleitung</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="radius">PLZ-Radius (km)</label>
+          <input type="range" id="radius" name="radius" min="0" max="200" step="10" value="50" aria-valuetext="50 km">
+        </div>
+        <div class="filter-group">
+          <label for="rating">Bewertung</label>
+          <select id="rating" name="rating">
+            <option value="">Alle</option>
+            <option value="5">★★★★★</option>
+            <option value="4">★★★★☆ und besser</option>
+            <option value="3">★★★☆☆ und besser</option>
+            <option value="2">★★☆☆☆ und besser</option>
+            <option value="1">★☆☆☆☆ und besser</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label><input type="checkbox" name="verified"> Verifiziert</label>
+        </div>
+        <div class="filter-group">
+          <label for="availability">Verfügbar ab</label>
+          <input type="date" id="availability" name="availability">
+        </div>
+        <div class="filter-group">
+          <button type="submit" class="btn btn-accent">Filter anwenden</button>
+        </div>
+      </form>
+    </aside>
+    <!-- Listing content -->
+    <section class="directory-content">
+      <h1>Verzeichnis</h1>
+      <div class="cards-grid" id="cardsGrid">
+        <!-- Example card (static fallback, replaced dynamically after filter) -->
+        <article class="card">
+          <img src="images/placeholder.png" alt="Firmenbild">
+          <div class="card-content">
+            <h3>Beispiel GmbH</h3>
+            <div class="badges">
+              <span class="badge">Mauerer</span>
+              <span class="badge">Elektriker</span>
+            </div>
+            <div class="rating">★★★★☆</div>
+            <div class="availability">Verfügbar ab: 01.05.2026</div>
+            <button type="button" aria-label="Kontakt aufnehmen">Kontakt aufnehmen</button>
+          </div>
+        </article>
+        <article class="card">
+          <img src="images/placeholder.png" alt="Firmenbild">
+          <div class="card-content">
+            <h3>Handwerk AG</h3>
+            <div class="badges">
+              <span class="badge">Zimmerer</span>
+            </div>
+            <div class="rating">★★★☆☆</div>
+            <div class="availability">Verfügbar ab: 15.04.2026</div>
+            <button type="button">Kontakt aufnehmen</button>
+          </div>
+        </article>
+        <article class="card">
+          <img src="images/placeholder.png" alt="Firmenbild">
+          <div class="card-content">
+            <h3>Bau Service KG</h3>
+            <div class="badges">
+              <span class="badge">Elektriker</span>
+              <span class="badge">Sanitär</span>
+            </div>
+            <div class="rating">★★★★★</div>
+            <div class="availability">Verfügbar ab: 20.03.2026</div>
+            <button type="button">Kontakt aufnehmen</button>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer role="contentinfo">
+    <div class="container">
+      <nav class="footer-links" aria-label="Footer">
+        <a href="impressum.html">Impressum</a>
+        <a href="datenschutz.html">Datenschutz</a>
+        <a href="agb.html">AGB</a>
+        <a href="haftungsausschluss.html">Haftungsausschluss</a>
+        <a href="contact.html">Kontakt</a>
+      </nav>
+      <p class="disclaimer">Reine Vermittlungsplattform – Haftung ausgeschlossen</p>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Mobile navigation toggling
+    const navToggle = document.querySelector('.nav-toggle');
+    const navMenu = document.querySelector('.nav-menu');
+    navToggle.addEventListener('click', () => {
+      const expanded = navToggle.getAttribute('aria-expanded') === 'true' || false;
+      navToggle.setAttribute('aria-expanded', !expanded);
+      navMenu.classList.toggle('hidden');
+    });
+
+    // Logout handler
+    const logoutLink = document.querySelector('[data-logout]');
+    if (logoutLink) {
+      logoutLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        BauHubAuth.logout();
+      });
+    }
+
+    // Render search results into the cards grid
+    function renderResults(results) {
+      const grid = document.getElementById('cardsGrid');
+      if (!grid) return;
+      if (!results || results.length === 0) {
+        grid.innerHTML = '<p>Keine Ergebnisse gefunden.</p>';
+        return;
+      }
+      grid.innerHTML = results.map(entry => {
+        const badges = Array.isArray(entry.trades)
+          ? entry.trades.map(t => `<span class="badge">${t}</span>`).join('')
+          : '';
+        const stars = entry.rating ? '★'.repeat(Math.round(entry.rating)) + '☆'.repeat(5 - Math.round(entry.rating)) : '';
+        const availabilityText = entry.availability ? `Verfügbar ab: ${entry.availability}` : '';
+        const verifiedBadge = entry.verified ? '<span class="badge badge-verified">Verifiziert</span>' : '';
+        return `
+          <article class="card">
+            <img src="${entry.image || 'images/placeholder.png'}" alt="Firmenbild">
+            <div class="card-content">
+              <h3>${entry.company || entry.name || 'Unbekannt'}</h3>
+              <div class="badges">${badges}${verifiedBadge}</div>
+              ${stars ? `<div class="rating">${stars}</div>` : ''}
+              ${availabilityText ? `<div class="availability">${availabilityText}</div>` : ''}
+              <button type="button" aria-label="Kontakt aufnehmen mit ${entry.company || entry.name || 'Unbekannt'}">Kontakt aufnehmen</button>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    // Filter form submission
+    const filterForm = document.getElementById('filterForm');
+    if (filterForm) {
+      filterForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = filterForm.querySelector('button[type="submit"]');
+        const formData = Object.fromEntries(new FormData(e.target));
+        // Collect all selected trades as array
+        const gewerkeSelect = document.getElementById('gewerke');
+        formData.gewerke = Array.from(gewerkeSelect.selectedOptions).map(o => o.value);
+        BauHubAuth.setLoading(submitBtn, true);
+        try {
+          const results = await BauHubAPI.directory.search(formData);
+          renderResults(results);
+          BauHubAuth.toast('Filter angewendet.', 'success');
+        } catch (err) {
+          console.error(err);
+          BauHubAuth.toast('Fehler beim Anwenden des Filters.', 'error');
+        } finally {
+          BauHubAuth.setLoading(submitBtn, false);
+        }
+      });
+    }
+  </script>
+</body>
+</html>

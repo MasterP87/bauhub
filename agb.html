@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Allgemeine Geschäftsbedingungen – BauHub</title>
+  <meta name="description" content="Die Allgemeinen Geschäftsbedingungen von BauHub regeln die Nutzung der Plattform sowie die Rechte und Pflichten von Bauunternehmern und Subunternehmern.">
+  <meta property="og:title" content="AGB – BauHub">
+  <meta property="og:description" content="Erfahren Sie alles über die Nutzungsbedingungen und Haftungsausschlüsse der Vermittlungsplattform BauHub.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header role="banner">
+    <div class="container nav">
+      <a href="index.html" class="nav-logo">BauHub</a>
+      <button class="nav-toggle" aria-label="Menü öffnen" aria-controls="primary-menu" aria-expanded="false">☰</button>
+      <nav id="primary-menu" class="nav-menu" aria-label="Hauptmenü">
+        <a href="index.html">Start</a>
+        <a href="verzeichnis.html">Verzeichnis</a>
+        <a href="projekt-erstellen.html">Projekt erstellen</a>
+        <a href="ressourcen.html">Ressourcen</a>
+        <a href="forum.html">Forum</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="login.html">Login/Registrierung</a>
+      </nav>
+    </div>
+  </header>
+  <main class="profile-container">
+    <h1>Allgemeine Geschäftsbedingungen (AGB)</h1>
+    <h2>§ 1 Geltungsbereich</h2>
+    <p>Diese AGB gelten für die Nutzung der Plattform „BauHub Vermittler“.</p>
+    <h2>§ 2 Leistungen</h2>
+    <p>Die Plattform stellt eine Vermittlungsleistung zwischen Bauunternehmern und Subunternehmern bereit.</p>
+    <h2>§ 7 Haftungsausschluss</h2>
+    <p>„BauHub Vermittler ist ausschließlich eine Vermittlungsplattform. Wir schließen jegliche Haftung für Verträge, Ausführung, Qualität, Termine, Preise oder Schäden zwischen den Nutzern aus. Die Nutzer handeln ausschließlich auf eigene Verantwortung. Die Plattform haftet nur bei grob fahrlässiger oder vorsätzlicher Verletzung eigener Pflichten.“</p>
+    <p>Weitere Paragraphen folgen.</p>
+  </main>
+  <footer role="contentinfo">
+    <div class="container">
+      <nav class="footer-links" aria-label="Footer">
+        <a href="impressum.html">Impressum</a>
+        <a href="datenschutz.html">Datenschutz</a>
+        <a href="agb.html" aria-current="page">AGB</a>
+        <a href="haftungsausschluss.html">Haftungsausschluss</a>
+        <a href="contact.html">Kontakt</a>
+      </nav>
+      <p class="disclaimer">Reine Vermittlungsplattform – Haftung ausgeschlossen</p>
+    </div>
+  </footer>
+  <script>
+    const navToggle = document.querySelector('.nav-toggle');
+    const navMenu = document.querySelector('.nav-menu');
+    navToggle.addEventListener('click', () => {
+      const expanded = navToggle.getAttribute('aria-expanded') === 'true' || false;
+      navToggle.setAttribute('aria-expanded', !expanded);
+      navMenu.classList.toggle('hidden');
+    });
+  </script>
+</body>
+</html>

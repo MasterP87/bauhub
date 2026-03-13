@@ -1,0 +1,31 @@
+# Umgebungsvariablen (NIEMALS einchecken!)
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Node
+node_modules/
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# Build Outputs
+dist/
+build/
+
+# Logs
+*.log
+
+# Supabase local dev
+.supabase/
+
+# Temporäre Dateien
+*.tmp
+*.temp

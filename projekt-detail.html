@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projektdetails – BauHub</title>
+  <meta name="description" content="Details zu einem Bauprojekt auf BauHub: Budget, Termin, Anforderungen, Bewerbungen und passende Subunternehmer.">
+  <meta property="og:title" content="Projektdetails – BauHub">
+  <meta property="og:description" content="Erfahren Sie mehr über dieses Bauprojekt, sehen Sie Fotos, Anforderungen und bewerben Sie sich bei Interesse.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header role="banner">
+    <div class="container nav">
+      <a href="index.html" class="nav-logo">BauHub</a>
+      <button class="nav-toggle" aria-label="Menü öffnen" aria-controls="primary-menu" aria-expanded="false">☰</button>
+      <nav id="primary-menu" class="nav-menu" aria-label="Hauptmenü">
+        <a href="index.html">Start</a>
+        <a href="verzeichnis.html">Verzeichnis</a>
+        <a href="projekt-erstellen.html">Projekt erstellen</a>
+        <a href="ressourcen.html">Ressourcen</a>
+        <a href="forum.html">Forum</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="login.html">Login/Registrierung</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <header class="project-header">
+      <h1>Neubau Wohnkomplex</h1>
+      <div class="project-meta">
+        <span>Status: <strong>Offen</strong></span>
+        <span>Budget: 50 000 € – 70 000 €</span>
+        <span>Termin: 01.06.2026 – 30.09.2026</span>
+        <span>PLZ: 44137</span>
+      </div>
+    </header>
+    <div class="project-body">
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis cursus, risus et pulvinar tristique, lorem ipsum faucibus nisi, a pretium lorem dolor vitae est. Nullam nec justo sed dolor hendrerit luctus. Integer ut malesuada mi. Morbi sed lacus vitae ipsum dapibus ullamcorper. Proin non hendrerit magna.</p>
+      <div class="carousel" aria-label="Projektfotos">
+        <img src="images/placeholder.png" alt="Projektfoto 1">
+        <img src="images/placeholder.png" alt="Projektfoto 2">
+        <img src="images/placeholder.png" alt="Projektfoto 3">
+      </div>
+      <h2>Anforderungen</h2>
+      <ul class="requirements">
+        <li>Erfahrung im Hochbau</li>
+        <li>Zertifizierte Elektriker</li>
+        <li>Nachhaltige Baumaterialien bevorzugt</li>
+      </ul>
+      <p><em>Aktuell 7 passende Subunternehmer in der Nähe</em></p>
+      <button type="button" class="apply-btn" id="applyBtn">Bewerben</button>
+    </div>
+  </main>
+
+  <!-- Modal for application -->
+  <div class="modal hidden" id="applyModal" role="dialog" aria-labelledby="applyTitle" aria-modal="true">
+    <div class="modal-content">
+      <h2 id="applyTitle">Jetzt bewerben</h2>
+      <label for="message">Nachricht</label>
+      <textarea id="message" name="message" required></textarea>
+      <label for="availability">Verfügbarkeit</label>
+      <input type="date" id="availability" name="availability" required>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" id="cancelApply">Abbrechen</button>
+        <button type="button" class="btn-submit" id="submitApply">Bewerben</button>
+      </div>
+      <p class="disclaimer" style="font-size:0.75rem; margin-top:1rem;">Mit dem Absenden akzeptieren Sie den <a href="haftungsausschluss.html">Haftungsausschluss</a>.</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer role="contentinfo">
+    <div class="container">
+      <nav class="footer-links" aria-label="Footer">
+        <a href="impressum.html">Impressum</a>
+        <a href="datenschutz.html">Datenschutz</a>
+        <a href="agb.html">AGB</a>
+        <a href="haftungsausschluss.html">Haftungsausschluss</a>
+        <a href="contact.html">Kontakt</a>
+      </nav>
+      <p class="disclaimer">Reine Vermittlungsplattform – Haftung ausgeschlossen</p>
+    </div>
+  </footer>
+
+  <script>
+    // Nav toggle
+    const navToggle = document.querySelector('.nav-toggle');
+    const navMenu = document.querySelector('.nav-menu');
+    navToggle.addEventListener('click', () => {
+      const expanded = navToggle.getAttribute('aria-expanded') === 'true' || false;
+      navToggle.setAttribute('aria-expanded', !expanded);
+      navMenu.classList.toggle('hidden');
+    });
+    // Modal logic
+    const applyBtn = document.getElementById('applyBtn');
+    const modal = document.getElementById('applyModal');
+    const cancelBtn = document.getElementById('cancelApply');
+    const submitBtn = document.getElementById('submitApply');
+    applyBtn.addEventListener('click', () => {
+      modal.classList.remove('hidden');
+    });
+    cancelBtn.addEventListener('click', () => {
+      modal.classList.add('hidden');
+    });
+    // Supabase API integration for project application
+    const SUPABASE_URL = 'https://your-project-ref.supabase.co';
+    const SUPABASE_KEY = 'public-anon-key';
+    async function callAPI(endpoint, data) {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json',
+          'X-API-Key': 'ki-agent-key-123'
+        },
+        body: JSON.stringify(data)
+      });
+      return await res.json();
+    }
+    submitBtn.addEventListener('click', async () => {
+      const message = document.getElementById('message').value;
+      const availability = document.getElementById('availability').value;
+      // Example project ID placeholder – in produktiver Umgebung dynamisch setzen
+      const projectId = 'project-id-placeholder';
+      const payload = { projectId, message, availability };
+      try {
+        const result = await callAPI('projects-apply', payload);
+        alert('Bewerbung an KI gesendet.');
+      } catch (err) {
+        console.error(err);
+        alert('Fehler beim Senden der Bewerbung.');
+      }
+      modal.classList.add('hidden');
+    });
+  </script>
+</body>
+</html>

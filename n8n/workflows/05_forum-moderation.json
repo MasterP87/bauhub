@@ -1,0 +1,98 @@
+{
+  "name": "BauHub – Forum Moderation (KI)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "forum-moderate",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-forum",
+      "name": "Webhook: Forum Post",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "requestMethod": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "={{ $env.ANTHROPIC_API_KEY }}" },
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"model\":\"claude-haiku-4-5-20251001\",\"max_tokens\":200,\"messages\":[{\"role\":\"user\",\"content\":\"Moderiere diesen Beitrag für eine deutsche Bau-Branchenplattform.\\nTitel: \\\"{{ $json.body.title }}\\\"\\nInhalt: \\\"{{ $json.body.content.substring(0, 300) }}\\\"\\nPrüfe auf: Spam, Beleidigungen, illegale Inhalte, reine Werbung.\\nAntworte mit JSON: {\\\"approve\\\": true/false, \\\"reason\\\": \\\"kurz auf Deutsch\\\"}\"}]}",
+        "options": {}
+      },
+      "id": "claude-moderate",
+      "name": "Claude: Inhalt moderieren",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $json.content?.[0]?.text || '{}';\nconst match = text.match(/\\{[\\s\\S]*?\\}/);\nconst result = JSON.parse(match ? match[0] : '{\"approve\": true}');\nreturn [{ json: { approve: result.approve !== false, reason: result.reason || 'KI-Prüfung', postId: $('Webhook: Forum Post').item.json.body.postId } }];"
+      },
+      "id": "parse-moderate",
+      "name": "KI-Entscheidung parsen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/forum_posts?id=eq.{{ $json.postId }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "requestMethod": "PATCH",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_ROLE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_ROLE_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"moderation_status\": \"{{ $json.approve ? 'genehmigt' : 'abgelehnt' }}\", \"moderation_note\": \"{{ $json.reason }}\", \"ai_moderated\": true}",
+        "options": {}
+      },
+      "id": "update-post",
+      "name": "Supabase: Post aktualisieren",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, status: $('KI-Entscheidung parsen').item.json.approve ? 'genehmigt' : 'abgelehnt', reason: $('KI-Entscheidung parsen').item.json.reason }) }}"
+      },
+      "id": "respond",
+      "name": "Antwort senden",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1120, 300]
+    }
+  ],
+  "connections": {
+    "Webhook: Forum Post": { "main": [[{ "node": "Claude: Inhalt moderieren", "type": "main", "index": 0 }]] },
+    "Claude: Inhalt moderieren": { "main": [[{ "node": "KI-Entscheidung parsen", "type": "main", "index": 0 }]] },
+    "KI-Entscheidung parsen": { "main": [[{ "node": "Supabase: Post aktualisieren", "type": "main", "index": 0 }]] },
+    "Supabase: Post aktualisieren": { "main": [[{ "node": "Antwort senden", "type": "main", "index": 0 }]] }
+  },
+  "active": true,
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "bauhub" }]
+}

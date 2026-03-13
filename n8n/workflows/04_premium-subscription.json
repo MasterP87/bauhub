@@ -1,0 +1,117 @@
+{
+  "name": "BauHub – Premium Subscription (Stripe Webhook)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "stripe-webhook",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "stripe-webhook",
+      "name": "Stripe Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Stripe Webhook Signatur prüfen\nconst body = $json.body;\nconst eventType = body.type;\nconst webhookSecret = $env.STRIPE_WEBHOOK_SECRET;\n\n// Nur relevante Events verarbeiten\nconst relevantEvents = ['checkout.session.completed', 'customer.subscription.deleted', 'invoice.payment_succeeded'];\nif (!relevantEvents.includes(eventType)) {\n  return [{ json: { skip: true, eventType } }];\n}\n\nconst session = body.data?.object;\nreturn [{\n  json: {\n    eventType,\n    userId: session?.metadata?.userId || null,\n    customerEmail: session?.customer_email || null,\n    subscriptionId: session?.subscription || null,\n    skip: false\n  }\n}];"
+      },
+      "id": "parse-webhook",
+      "name": "Stripe Event parsen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [{ "leftValue": "={{ $json.skip }}", "rightValue": false, "operator": { "type": "boolean", "operation": "equals" } }],
+          "combinator": "and"
+        }
+      },
+      "id": "filter-events",
+      "name": "Event relevant?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {},
+          "conditions": [{ "leftValue": "={{ $json.eventType }}", "rightValue": "checkout.session.completed", "operator": { "type": "string", "operation": "equals" } }],
+          "combinator": "and"
+        }
+      },
+      "id": "is-new-subscription",
+      "name": "Neues Abo?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 240]
+    },
+    {
+      "parameters": {
+        "jsCode": "const premiumUntil = new Date();\npremiumUntil.setMonth(premiumUntil.getMonth() + 1);\nreturn [{ json: { ...($json), premiumUntil: premiumUntil.toISOString() } }];"
+      },
+      "id": "calc-premium-date",
+      "name": "Premium-Datum berechnen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 180]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/users?id=eq.{{ $json.userId }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "requestMethod": "PATCH",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_ROLE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_ROLE_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"premium_until\": \"{{ $json.premiumUntil }}\"}",
+        "options": {}
+      },
+      "id": "update-premium",
+      "name": "Supabase: Premium setzen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1340, 180]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.SMTP_FROM }}",
+        "toEmail": "={{ $('Stripe Event parsen').item.json.customerEmail }}",
+        "subject": "Premium-Mitgliedschaft aktiviert – BauHub",
+        "emailType": "html",
+        "message": "<h2>Willkommen in der Premium-Community!</h2><p>Ihr Premium-Abonnement wurde erfolgreich aktiviert. Sie profitieren ab sofort von erhöhter Sichtbarkeit im Verzeichnis.</p><p>Ihr Abonnement läuft bis: <strong>{{ new Date($('Berechne Premium-Datum').item.json.premiumUntil).toLocaleDateString('de-DE') }}</strong></p><p><a href='{{ $env.SITE_URL }}/dashboard.html'>Zum Dashboard</a></p>"
+      },
+      "id": "email-premium",
+      "name": "E-Mail: Premium Bestätigung",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1560, 180]
+    }
+  ],
+  "connections": {
+    "Stripe Webhook": { "main": [[{ "node": "Stripe Event parsen", "type": "main", "index": 0 }]] },
+    "Stripe Event parsen": { "main": [[{ "node": "Event relevant?", "type": "main", "index": 0 }]] },
+    "Event relevant?": { "main": [[{ "node": "Neues Abo?", "type": "main", "index": 0 }]] },
+    "Neues Abo?": { "main": [[{ "node": "Premium-Datum berechnen", "type": "main", "index": 0 }]] },
+    "Premium-Datum berechnen": { "main": [[{ "node": "Supabase: Premium setzen", "type": "main", "index": 0 }]] },
+    "Supabase: Premium setzen": { "main": [[{ "node": "E-Mail: Premium Bestätigung", "type": "main", "index": 0 }]] }
+  },
+  "active": true,
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "bauhub" }]
+}

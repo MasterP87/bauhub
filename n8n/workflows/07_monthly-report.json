@@ -1,0 +1,72 @@
+{
+  "name": "BauHub – Monthly Revenue Report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 1 * *" }] }
+      },
+      "id": "cron-monthly",
+      "name": "Am 1. des Monats 08:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/functions/v1/admin-report",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "requestMethod": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_ROLE_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "x-api-key", "value": "={{ $env.ADMIN_API_KEY || 'admin' }}" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{}",
+        "options": {}
+      },
+      "id": "get-report",
+      "name": "Edge Function: admin-report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const report = $json.report;\nconst summary = $json.summary || '';\n\nconst html = `\n<h1>BauHub Monatsbericht</h1>\n<h2>${report.period}</h2>\n<table border='1' cellpadding='8' style='border-collapse:collapse'>\n<tr><th>Metrik</th><th>Wert</th></tr>\n<tr><td>Neue Nutzer</td><td>${report.new_users}</td></tr>\n<tr><td>Neue Projekte</td><td>${report.new_projects}</td></tr>\n<tr><td>Erfolgreiche Matches</td><td>${report.total_matches}</td></tr>\n<tr><td>Provisionseinnahmen</td><td>${report.total_provision_eur?.toFixed(2)} €</td></tr>\n<tr><td>Premium-Nutzer</td><td>${report.premium_users}</td></tr>\n<tr><td>Premium-Einnahmen</td><td>${report.premium_revenue_eur?.toFixed(2)} €</td></tr>\n<tr><td><strong>Gesamtumsatz</strong></td><td><strong>${report.total_revenue_eur?.toFixed(2)} €</strong></td></tr>\n</table>\n${summary ? `<h3>KI-Zusammenfassung</h3><p>${summary}</p>` : ''}\n<p><small>Erstellt: ${new Date(report.generated_at).toLocaleString('de-DE')}</small></p>\n`;\n\nreturn [{ json: { html, subject: `BauHub Monatsbericht – ${report.period}` } }];"
+      },
+      "id": "format-report",
+      "name": "HTML-Bericht formatieren",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.SMTP_FROM }}",
+        "toEmail": "={{ $env.ADMIN_EMAIL }}",
+        "subject": "={{ $json.subject }}",
+        "emailType": "html",
+        "message": "={{ $json.html }}"
+      },
+      "id": "send-report",
+      "name": "Report per E-Mail senden",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "Am 1. des Monats 08:00": { "main": [[{ "node": "Edge Function: admin-report", "type": "main", "index": 0 }]] },
+    "Edge Function: admin-report": { "main": [[{ "node": "HTML-Bericht formatieren", "type": "main", "index": 0 }]] },
+    "HTML-Bericht formatieren": { "main": [[{ "node": "Report per E-Mail senden", "type": "main", "index": 0 }]] }
+  },
+  "active": true,
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "bauhub" }]
+}

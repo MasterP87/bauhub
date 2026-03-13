@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard – BauHub</title>
+  <meta name="description" content="Ihr persönliches Dashboard bei BauHub: Verwalten Sie Projekte, Bewerbungen, Matches und Statistiken an einem Ort.">
+  <meta property="og:title" content="Dashboard – BauHub">
+  <meta property="og:description" content="Behalten Sie den Überblick über Ihre laufenden Projekte, Bewerbungen und Matches auf BauHub.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header role="banner">
+    <div class="container nav">
+      <a href="index.html" class="nav-logo">BauHub</a>
+      <button class="nav-toggle" aria-label="Menü öffnen" aria-controls="primary-menu" aria-expanded="false">☰</button>
+      <nav id="primary-menu" class="nav-menu" aria-label="Hauptmenü">
+        <a href="index.html">Start</a>
+        <a href="verzeichnis.html">Verzeichnis</a>
+        <a href="projekt-erstellen.html">Projekt erstellen</a>
+        <a href="ressourcen.html">Ressourcen</a>
+        <a href="forum.html">Forum</a>
+        <a href="dashboard.html" aria-current="page">Dashboard</a>
+        <a href="mein-profil.html">Mein Profil</a>
+        <a href="#" data-logout>Abmelden (<span data-user-company></span>)</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="dashboard-container">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem">
+      <h1 style="margin:0">Dashboard</h1>
+      <div id="notif-area"></div>
+    </div>
+
+    <!-- Premium Banner -->
+    <div class="premium-banner" id="premiumBanner">
+      <h2>Premium-Mitgliedschaft</h2>
+      <p>Für nur 19 €/Monat profitieren Sie von erhöhter Sichtbarkeit und weiteren Vorteilen.</p>
+      <button class="btn btn-accent" id="premiumUpgrade">Jetzt upgraden – 19 €/Monat</button>
+    </div>
+    <div id="premiumActive" style="display:none; background:#dcfce7; border:1px solid #86efac; border-radius:8px; padding:1rem; margin-bottom:1.5rem">
+      ✅ <strong>Premium aktiv</strong> – erhöhte Sichtbarkeit bis <span id="premiumUntil"></span>
+    </div>
+
+    <div class="dashboard-tabs" role="tablist">
+      <button role="tab" class="active" data-tab="projects">Projekte</button>
+      <button role="tab" data-tab="applications">Bewerbungen</button>
+      <button role="tab" data-tab="matches">Matches</button>
+      <button role="tab" data-tab="stats">Statistiken</button>
+      <button role="tab" data-tab="notifications">Benachrichtigungen <span id="notifBadge" style="background:#dc2626;color:white;border-radius:50%;padding:0 5px;font-size:0.75rem;display:none"></span></button>
+    </div>
+
+    <div id="dash-panels">
+      <!-- PROJEKTE -->
+      <div class="dashboard-panel active" id="projects" role="tabpanel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+          <h3>Meine Projekte</h3>
+          <a href="projekt-erstellen.html" class="btn-primary" style="padding:0.5rem 1rem;font-size:0.875rem">+ Neues Projekt</a>
+        </div>
+        <div id="projectsList">
+          <p style="color:#6b7280">Lädt Projekte...</p>
+        </div>
+      </div>
+
+      <!-- BEWERBUNGEN -->
+      <div class="dashboard-panel" id="applications" role="tabpanel">
+        <h3>Meine Bewerbungen</h3>
+        <div id="applicationsList">
+          <p style="color:#6b7280">Lädt Bewerbungen...</p>
+        </div>
+      </div>
+
+      <!-- MATCHES -->
+      <div class="dashboard-panel" id="matches" role="tabpanel">
+        <h3>Meine Matches</h3>
+        <div id="matchesList">
+          <p style="color:#6b7280">Lädt Matches...</p>
+        </div>
+      </div>
+
+      <!-- STATISTIKEN -->
+      <div class="dashboard-panel" id="stats" role="tabpanel">
+        <h3>Statistiken</h3>
+        <div id="statsList">
+          <p style="color:#6b7280">Lädt Statistiken...</p>
+        </div>
+      </div>
+
+      <!-- BENACHRICHTIGUNGEN -->
+      <div class="dashboard-panel" id="notifications" role="tabpanel">
+        <h3>Benachrichtigungen</h3>
+        <div id="notificationsList">
+          <p style="color:#6b7280">Lädt Benachrichtigungen...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer role="contentinfo">
+    <div class="container">
+      <nav class="footer-links" aria-label="Footer">
+        <a href="impressum.html">Impressum</a>
+        <a href="datenschutz.html">Datenschutz</a>
+        <a href="agb.html">AGB</a>
+        <a href="haftungsausschluss.html">Haftungsausschluss</a>
+        <a href="contact.html">Kontakt</a>
+      </nav>
+      <p class="disclaimer">Reine Vermittlungsplattform – Haftung ausgeschlossen</p>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Nav Toggle
+    document.querySelector('.nav-toggle').addEventListener('click', function() {
+      const exp = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !exp);
+      document.querySelector('.nav-menu').classList.toggle('hidden');
+    });
+
+    // Dashboard Tabs
+    document.querySelectorAll('.dashboard-tabs button').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.dashboard-tabs button').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.dashboard-panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    // URL-Parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('premium') === 'success') {
+      BauHubAuth.toast('Premium-Abonnement aktiviert!', 'success');
+    }
+
+    async function initDashboard() {
+      // Einloggcheck
+      BauHubAPI.auth.redirectIfNotLoggedIn();
+
+      const profile = await BauHubAuth.loadUserProfile();
+      if (!profile) return;
+
+      // Nutzername in Nav
+      document.querySelectorAll('[data-user-company]').forEach(el => el.textContent = profile.company);
+
+      // Premium Status
+      if (profile.premium_until && new Date(profile.premium_until) > new Date()) {
+        document.getElementById('premiumBanner').style.display = 'none';
+        document.getElementById('premiumActive').style.display = 'block';
+        document.getElementById('premiumUntil').textContent = new Date(profile.premium_until).toLocaleDateString('de-DE');
+      }
+
+      // Projekte laden
+      await loadProjects(profile);
+
+      // Bewerbungen laden
+      await loadApplications(profile);
+
+      // Matches laden
+      await loadMatches(profile);
+
+      // Stats laden
+      loadStats(profile);
+
+      // Benachrichtigungen laden
+      await loadNotifications();
+    }
+
+    async function loadProjects(profile) {
+      const config = BauHubConfig.supabase;
+      const token = localStorage.getItem('bauhub_token');
+      const res = await fetch(`${config.url}/rest/v1/projects?creator_id=eq.${profile.id}&select=*&order=created_at.desc`, {
+        headers: { 'apikey': config.anonKey, 'Authorization': `Bearer ${token}` }
+      }).catch(() => null);
+
+      const projects = res?.ok ? await res.json() : [];
+      const el = document.getElementById('projectsList');
+
+      if (!projects.length) {
+        el.innerHTML = '<p style="color:#6b7280">Noch keine Projekte. <a href="projekt-erstellen.html">Jetzt erstellen</a></p>';
+        return;
+      }
+
+      el.innerHTML = `<table>
+        <thead><tr><th>Titel</th><th>Gewerke</th><th>Status</th><th>Budget</th><th>Aktionen</th></tr></thead>
+        <tbody>${projects.map(p => `
+          <tr>
+            <td>${escHtml(p.title)}</td>
+            <td>${(p.gewerke||[]).join(', ')}</td>
+            <td><span style="background:${p.status==='offen'?'#dcfce7':p.status==='abgeschlossen'?'#dbeafe':'#fef9c3'};padding:2px 8px;border-radius:4px;font-size:0.8rem">${escHtml(p.status)}</span></td>
+            <td>${p.budget_min||'?'}–${p.budget_max||'?'} €</td>
+            <td><a href="projekt-detail.html?id=${p.id}">Ansehen</a></td>
+          </tr>`).join('')}
+        </tbody></table>`;
+    }
+
+    async function loadApplications(profile) {
+      const config = BauHubConfig.supabase;
+      const token = localStorage.getItem('bauhub_token');
+      const res = await fetch(`${config.url}/rest/v1/applications?applicant_id=eq.${profile.id}&select=*,projects(title,plz)&order=created_at.desc`, {
+        headers: { 'apikey': config.anonKey, 'Authorization': `Bearer ${token}` }
+      }).catch(() => null);
+
+      const apps = res?.ok ? await res.json() : [];
+      const el = document.getElementById('applicationsList');
+
+      if (!apps.length) {
+        el.innerHTML = '<p style="color:#6b7280">Noch keine Bewerbungen.</p>';
+        return;
+      }
+
+      el.innerHTML = `<table>
+        <thead><tr><th>Projekt</th><th>Status</th><th>Datum</th></tr></thead>
+        <tbody>${apps.map(a => `
+          <tr>
+            <td>${escHtml(a.projects?.title || 'Unbekannt')}</td>
+            <td>${escHtml(a.status)}</td>
+            <td>${new Date(a.created_at).toLocaleDateString('de-DE')}</td>
+          </tr>`).join('')}
+        </tbody></table>`;
+    }
+
+    async function loadMatches(profile) {
+      const config = BauHubConfig.supabase;
+      const token = localStorage.getItem('bauhub_token');
+      const res = await fetch(`${config.url}/rest/v1/matches?or=(subunternehmer_id.eq.${profile.id},bauunternehmer_id.eq.${profile.id})&select=*,projects(title)&order=created_at.desc`, {
+        headers: { 'apikey': config.anonKey, 'Authorization': `Bearer ${token}` }
+      }).catch(() => null);
+
+      const matches = res?.ok ? await res.json() : [];
+      const el = document.getElementById('matchesList');
+
+      if (!matches.length) {
+        el.innerHTML = '<p style="color:#6b7280">Noch keine Matches.</p>';
+        return;
+      }
+
+      el.innerHTML = `<table>
+        <thead><tr><th>Projekt</th><th>Status</th><th>KI-Score</th><th>Provision</th><th>Aktion</th></tr></thead>
+        <tbody>${matches.map(m => `
+          <tr>
+            <td>${escHtml(m.projects?.title || 'Unbekannt')}</td>
+            <td>${escHtml(m.status)}</td>
+            <td>${m.ai_score ? Math.round(m.ai_score) + '%' : '—'}</td>
+            <td>${m.provision_rate}%</td>
+            <td>${m.status !== 'beide_bestaetigt' && m.status !== 'abgelehnt'
+              ? `<button onclick="confirmMatch('${m.id}')" class="btn-primary" style="padding:4px 10px;font-size:0.8rem">Bestätigen</button>`
+              : escHtml(m.status)}</td>
+          </tr>`).join('')}
+        </tbody></table>`;
+    }
+
+    function loadStats(profile) {
+      const el = document.getElementById('statsList');
+      el.innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem">
+          <div style="background:#f8fafc;border-radius:8px;padding:1.25rem;text-align:center">
+            <div style="font-size:2rem;font-weight:700;color:#003087" id="statsProjects">—</div>
+            <div style="color:#6b7280;font-size:0.875rem">Projekte</div>
+          </div>
+          <div style="background:#f8fafc;border-radius:8px;padding:1.25rem;text-align:center">
+            <div style="font-size:2rem;font-weight:700;color:#00A651" id="statsMatches">—</div>
+            <div style="color:#6b7280;font-size:0.875rem">Matches</div>
+          </div>
+          <div style="background:#f8fafc;border-radius:8px;padding:1.25rem;text-align:center">
+            <div style="font-size:2rem;font-weight:700;color:#003087">${(profile.rating || 0).toFixed(1)}</div>
+            <div style="color:#6b7280;font-size:0.875rem">Ø Bewertung</div>
+          </div>
+          <div style="background:#f8fafc;border-radius:8px;padding:1.25rem;text-align:center">
+            <div style="font-size:2rem;font-weight:700;color:${BauHubAuth.isPremium()?'#00A651':'#9ca3af'}">
+              ${BauHubAuth.isPremium() ? 'Premium' : 'Standard'}
+            </div>
+            <div style="color:#6b7280;font-size:0.875rem">Mitgliedschaft</div>
+          </div>
+        </div>`;
+
+      // Stats asynchron nachladen
+      const config = BauHubConfig.supabase;
+      const token = localStorage.getItem('bauhub_token');
+      Promise.all([
+        fetch(`${config.url}/rest/v1/projects?creator_id=eq.${profile.id}&select=id`, { headers: { 'apikey': config.anonKey, 'Authorization': `Bearer ${token}`, 'Prefer': 'count=exact' } }),
+        fetch(`${config.url}/rest/v1/matches?or=(subunternehmer_id.eq.${profile.id},bauunternehmer_id.eq.${profile.id})&select=id`, { headers: { 'apikey': config.anonKey, 'Authorization': `Bearer ${token}`, 'Prefer': 'count=exact' } }),
+      ]).then(async ([p, m]) => {
+        const pc = p.headers.get('content-range')?.split('/')[1] || '0';
+        const mc = m.headers.get('content-range')?.split('/')[1] || '0';
+        document.getElementById('statsProjects').textContent = pc;
+        document.getElementById('statsMatches').textContent = mc;
+      }).catch(() => {});
+    }
+
+    async function loadNotifications() {
+      const notifs = await BauHubAPI.notifications.list();
+      const el = document.getElementById('notificationsList');
+      const badge = document.getElementById('notifBadge');
+
+      if (notifs.length > 0) {
+        badge.textContent = notifs.length;
+        badge.style.display = 'inline';
+      }
+
+      if (!notifs.length) {
+        el.innerHTML = '<p style="color:#6b7280">Keine neuen Benachrichtigungen.</p>';
+        return;
+      }
+
+      el.innerHTML = notifs.map(n => `
+        <div style="border:1px solid #e5e7eb;border-radius:8px;padding:1rem;margin-bottom:0.75rem;cursor:pointer" onclick="markNotifRead('${n.id}',this)">
+          <strong>${escHtml(n.title)}</strong>
+          <p style="margin:0.25rem 0 0;color:#4b5563;font-size:0.875rem">${escHtml(n.message)}</p>
+          <small style="color:#9ca3af">${new Date(n.created_at).toLocaleString('de-DE')}</small>
+        </div>`).join('');
+    }
+
+    async function confirmMatch(matchId) {
+      const { data, error } = await BauHubAPI.matches.confirm({ matchId });
+      if (error) {
+        BauHubAuth.toast('Fehler: ' + error, 'error');
+      } else {
+        BauHubAuth.toast('Match bestätigt!', 'success');
+        await loadMatches(BauHubAuth.getProfile());
+      }
+    }
+
+    async function markNotifRead(id, el) {
+      await BauHubAPI.notifications.markRead(id);
+      el.style.opacity = '0.5';
+    }
+
+    function escHtml(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Premium Upgrade
+    document.getElementById('premiumUpgrade').addEventListener('click', async () => {
+      const btn = document.getElementById('premiumUpgrade');
+      BauHubAuth.setLoading(btn, true, 'Wird vorbereitet...');
+      const { data, error } = await BauHubAPI.premium.subscribe({});
+      BauHubAuth.setLoading(btn, false);
+
+      if (error) {
+        BauHubAuth.toast('Fehler: ' + error, 'error');
+        return;
+      }
+      if (data?.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else if (data?.success) {
+        BauHubAuth.toast('Premium aktiviert!', 'success');
+        location.reload();
+      }
+    });
+
+    initDashboard();
+  </script>
+</body>
+</html>

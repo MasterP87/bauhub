@@ -1,0 +1,70 @@
+# Supabase CLI Configuration
+# Deploy with: supabase functions deploy --project-ref YOUR_PROJECT_REF
+
+[api]
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+port = 54323
+api_url = "http://localhost"
+
+[inbucket]
+port = 54324
+smtp_port = 54325
+pop3_port = 54326
+
+[storage]
+file_size_limit = "50MiB"
+
+[auth]
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["https://bauhub.vercel.app", "https://bauhub.netlify.app"]
+jwt_expiry = 3600
+enable_signup = true
+enable_anonymous_sign_ins = false
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = true
+
+[functions.users-register]
+verify_jwt = false
+
+[functions.users-verify]
+verify_jwt = false
+
+[functions.projects-create]
+verify_jwt = false
+
+[functions.projects-apply]
+verify_jwt = false
+
+[functions.matching-run]
+verify_jwt = false
+
+[functions.matches-confirm]
+verify_jwt = false
+
+[functions.premium-subscribe]
+verify_jwt = false
+
+[functions.forum-create]
+verify_jwt = false
+
+[functions.forum-moderate]
+verify_jwt = false
+
+[functions.resources-create]
+verify_jwt = false
+
+[functions.admin-report]
+verify_jwt = false

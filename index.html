@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="BauHub Vermittler – die zentrale Plattform für die Vermittlung von Subunternehmern und Bauprojekten in der deutschen Baubranche.">
+  <title>BauHub Vermittler – Startseite</title>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Open Graph for social sharing -->
+  <meta property="og:title" content="BauHub Vermittler">
+  <meta property="og:description" content="Finde Subunternehmer und Bauprojekte in Minuten – PLZ-genaues Matching, verifizierte Profile und transparente Provision.">
+  <meta property="og:image" content="images/hero-bg.png">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="/">
+</head>
+<body>
+  <!-- Header -->
+  <header role="banner">
+    <div class="container nav">
+      <a href="index.html" class="nav-logo">BauHub</a>
+      <button class="nav-toggle" aria-label="Menü öffnen" aria-controls="primary-menu" aria-expanded="false">☰</button>
+      <nav id="primary-menu" class="nav-menu" aria-label="Hauptmenü">
+        <a href="index.html" aria-current="page">Start</a>
+        <a href="verzeichnis.html">Verzeichnis</a>
+        <a href="projekt-erstellen.html">Projekt erstellen</a>
+        <a href="ressourcen.html">Ressourcen</a>
+        <a href="forum.html">Forum</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="login.html">Login/Registrierung</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero" aria-labelledby="hero-heading">
+    <div class="hero-content">
+      <h1 id="hero-heading">BauHub Vermittler – Subunternehmer und Projekte in Minuten finden</h1>
+      <p>Die zentrale Vermittlungsplattform für die deutsche Baubranche. Kostenlos starten.</p>
+      <div class="cta">
+        <a href="login.html" class="btn btn-primary" role="button">Jetzt kostenlos registrieren</a>
+        <a href="projekt-erstellen.html" class="btn btn-accent" role="button">Projekt als Bauunternehmer posten</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust / Value Proposition Section -->
+  <section class="trust-section">
+    <div class="trust-grid">
+      <div class="trust-card">
+        <!-- Simple check icon -->
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 16.2l-3.5-3.5 1.4-1.4L9 13.4l7.1-7.1 1.4 1.4z"></path></svg>
+        <h3>Verifizierte Profile</h3>
+        <p>Sorgfältig geprüfte Subunternehmer für höchste Qualität.</p>
+      </div>
+      <div class="trust-card">
+        <!-- Map marker icon -->
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5c-1.4 0-2.5-1.1-2.5-2.5S10.6 6.5 12 6.5s2.5 1.1 2.5 2.5S13.4 11.5 12 11.5z"></path></svg>
+        <h3>PLZ‑genaues Matching</h3>
+        <p>Schnell passende Partner in Ihrer Region finden.</p>
+      </div>
+      <div class="trust-card">
+        <!-- Percent icon -->
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18.5 5l-13 13 1.5 1.5 13-13L18.5 5zM7 9.5C8.4 9.5 9.5 8.4 9.5 7S8.4 4.5 7 4.5 4.5 5.6 4.5 7 5.6 9.5 7 9.5zm10 10c1.4 0 2.5-1.1 2.5-2.5S18.4 14.5 17 14.5 14.5 15.6 14.5 17s1.1 2.5 2.5 2.5z"></path></svg>
+        <h3>8–12 % Provision</h3>
+        <p>Nur bei erfolgreicher Vermittlung.</p>
+      </div>
+      <div class="trust-card">
+        <!-- Tools icon -->
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15.1 5.1c-.1 0-.1 0 0 0L11 9.2l-1.2-1.2 4.1-4.1c-.7-.3-1.5-.5-2.3-.5-3 0-5.5 2.5-5.5 5.5 0 .8.2 1.6.5 2.3L2 17l5 5 6.8-6.8c.7.3 1.5.5 2.3.5 3 0 5.5-2.5 5.5-5.5 0-.8-.2-1.6-.5-2.3l-4.1 4.1-1.2-1.2 4.1-4.1c-.3-.7-.5-1.5-.5-2.3 0-3-2.5-5.5-5.5-5.5-.8 0-1.6.2-2.3.5z"></path></svg>
+        <h3>29 Gewerke</h3>
+        <p>Breites Spektrum an Gewerken für jedes Bauprojekt.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Search Section -->
+  <section class="search-section" aria-labelledby="search-heading">
+    <h2 id="search-heading" class="sr-only">Sofort nach Gewerken suchen</h2>
+    <form class="search-form" role="search" action="verzeichnis.html" method="get">
+      <select name="gewerk" aria-label="Gewerk auswählen">
+        <option value="">Gewerk</option>
+        <option value="Mauerer">Mauerer</option>
+        <option value="Betonbauer">Beton- und Stahlbetonbauer</option>
+        <option value="Zimmerer">Zimmerer</option>
+        <option value="Dachdecker">Dachdecker</option>
+        <option value="Elektriker">Elektriker</option>
+        <option value="Sanitaer">Sanitär-, Heizungs- und Klimatechniker</option>
+        <option value="Maler">Maler und Lackierer</option>
+        <option value="Fliesenleger">Fliesen-, Platten- und Mosaikleger</option>
+        <option value="Tiefbauer">Tiefbauer</option>
+        <option value="Strassenbauer">Straßenbauer</option>
+        <option value="Geruestbauer">Gerüstbauer</option>
+        <option value="Tischler">Tischler</option>
+        <option value="Stahlbauer">Stahl- und Metallbauer</option>
+        <option value="Glasbauer">Glasbauer</option>
+        <option value="Bodenleger">Bodenleger</option>
+        <option value="Putzer">Putzer</option>
+        <option value="Stuckateur">Stuckateur</option>
+        <option value="Schlosser">Schlosser</option>
+        <option value="Klempner">Klempner</option>
+        <option value="Gartenbauer">Garten- und Landschaftsbauer</option>
+        <option value="Rohrleitungsbauer">Rohrleitungsbauer</option>
+        <option value="Isolierer">Isolierer</option>
+        <option value="Fassadenbauer">Fassadenbauer</option>
+        <option value="Energieberater">Energieberater</option>
+        <option value="Nachhaltigkeitsberater">Nachhaltigkeitsberater</option>
+        <option value="Baugeraete">Baugeräteführer</option>
+        <option value="Statiker">Statiker / Tragwerksplanung</option>
+        <option value="Altbausanierung">Altbausanierung</option>
+        <option value="Bauleitung">Bauleitung</option>
+      </select>
+      <input type="text" name="plz" placeholder="PLZ" aria-label="Postleitzahl">
+      <button type="submit">Suchen</button>
+    </form>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="stats-section">
+    <div class="stats-grid">
+      <div>
+        <div class="stat">500+</div>
+        <div class="stat-label">vermittelte Matches</div>
+      </div>
+      <div>
+        <div class="stat">29</div>
+        <div class="stat-label">abgedeckte Gewerke</div>
+      </div>
+      <div>
+        <div class="stat">8–12 %</div>
+        <div class="stat-label">faire Provision</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer role="contentinfo">
+    <div class="container">
+      <nav class="footer-links" aria-label="Footer">
+        <a href="impressum.html">Impressum</a>
+        <a href="datenschutz.html">Datenschutz</a>
+        <a href="agb.html">AGB</a>
+        <a href="haftungsausschluss.html">Haftungsausschluss</a>
+        <a href="contact.html">Kontakt</a>
+      </nav>
+      <p class="disclaimer">Reine Vermittlungsplattform – Haftung ausgeschlossen</p>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile navigation toggle
+    const navToggle = document.querySelector('.nav-toggle');
+    const navMenu = document.querySelector('.nav-menu');
+    navToggle.addEventListener('click', () => {
+      const expanded = navToggle.getAttribute('aria-expanded') === 'true' || false;
+      navToggle.setAttribute('aria-expanded', !expanded);
+      navMenu.classList.toggle('hidden');
+    });
+  </script>
+</body>
+</html>

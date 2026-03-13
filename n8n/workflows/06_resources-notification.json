@@ -1,0 +1,83 @@
+{
+  "name": "BauHub – Ressourcen & Benachrichtigungen",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "resource-new",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-resource",
+      "name": "Webhook: Neue Ressource",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/users?role=eq.subunternehmer&select=id,company,email&limit=50",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_ROLE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_ROLE_KEY }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "get-users",
+      "name": "Interessenten laden",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "=",
+        "include": "allFields"
+      },
+      "id": "split-users",
+      "name": "Pro Nutzer",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/notifications",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "requestMethod": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_ROLE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_ROLE_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"user_id\": \"{{ $json.id }}\", \"type\": \"new_resource\", \"title\": \"Neue Ressource verfügbar\", \"message\": \"{{ $('Webhook: Neue Ressource').item.json.body.title }} ({{ $('Webhook: Neue Ressource').item.json.body.category }}) ist jetzt verfügbar.\", \"data\": {\"resourceId\": \"{{ $('Webhook: Neue Ressource').item.json.body.resourceId \\\"}}\"}}",
+        "options": { "batching": { "batch": { "batchSize": 5, "batchInterval": 1000 } } }
+      },
+      "id": "send-notif",
+      "name": "In-App Benachrichtigung",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "Webhook: Neue Ressource": { "main": [[{ "node": "Interessenten laden", "type": "main", "index": 0 }]] },
+    "Interessenten laden": { "main": [[{ "node": "Pro Nutzer", "type": "main", "index": 0 }]] },
+    "Pro Nutzer": { "main": [[{ "node": "In-App Benachrichtigung", "type": "main", "index": 0 }]] }
+  },
+  "active": true,
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "bauhub" }]
+}

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kontakt – BauHub</title>
+  <meta name="description" content="Kontaktieren Sie BauHub – wir beantworten gerne Ihre Fragen rund um die Vermittlungsplattform und unsere Dienstleistungen.">
+  <meta property="og:title" content="Kontakt – BauHub">
+  <meta property="og:description" content="Sie haben Fragen oder benötigen Unterstützung? Kontaktieren Sie uns über das Formular auf dieser Seite.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header role="banner">
+    <div class="container nav">
+      <a href="index.html" class="nav-logo">BauHub</a>
+      <button class="nav-toggle" aria-label="Menü öffnen" aria-controls="primary-menu" aria-expanded="false">☰</button>
+      <nav id="primary-menu" class="nav-menu" aria-label="Hauptmenü">
+        <a href="index.html">Start</a>
+        <a href="verzeichnis.html">Verzeichnis</a>
+        <a href="projekt-erstellen.html">Projekt erstellen</a>
+        <a href="ressourcen.html">Ressourcen</a>
+        <a href="forum.html">Forum</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="login.html">Login/Registrierung</a>
+      </nav>
+    </div>
+  </header>
+  <main class="profile-container">
+    <h1>Kontakt</h1>
+    <p>Sie haben Fragen oder benötigen Unterstützung? Schreiben Sie uns gerne eine Nachricht.</p>
+    <form>
+      <label for="contact-name">Name</label>
+      <input type="text" id="contact-name" name="name" required>
+      <label for="contact-email">E-Mail</label>
+      <input type="email" id="contact-email" name="email" required>
+      <label for="contact-message">Ihre Nachricht</label>
+      <textarea id="contact-message" name="message" rows="4" required></textarea>
+      <button type="submit" class="btn btn-primary">Absenden</button>
+    </form>
+  </main>
+  <footer role="contentinfo">
+    <div class="container">
+      <nav class="footer-links" aria-label="Footer">
+        <a href="impressum.html">Impressum</a>
+        <a href="datenschutz.html">Datenschutz</a>
+        <a href="agb.html">AGB</a>
+        <a href="haftungsausschluss.html">Haftungsausschluss</a>
+        <a href="contact.html" aria-current="page">Kontakt</a>
+      </nav>
+      <p class="disclaimer">Reine Vermittlungsplattform – Haftung ausgeschlossen</p>
+    </div>
+  </footer>
+  <script>
+    const navToggle = document.querySelector('.nav-toggle');
+    const navMenu = document.querySelector('.nav-menu');
+    navToggle.addEventListener('click', () => {
+      const expanded = navToggle.getAttribute('aria-expanded') === 'true' || false;
+      navToggle.setAttribute('aria-expanded', !expanded);
+      navMenu.classList.toggle('hidden');
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+{
+  "name": "BauHub – Bewerbung & Match Confirm",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "application",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-app",
+      "name": "Webhook: Neue Bewerbung",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/users?id=eq.{{ $json.body.applicantId }}&select=company,email",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_ROLE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_ROLE_KEY }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "get-applicant",
+      "name": "Bewerber laden",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/users?id=eq.{{ $('Webhook: Neue Bewerbung').item.json.body.projectCreatorId }}&select=email,company",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_ROLE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_ROLE_KEY }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "get-creator",
+      "name": "Projektersteller laden",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [460, 480]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.SMTP_FROM }}",
+        "toEmail": "={{ $('Projektersteller laden').item.json[0]?.email }}",
+        "subject": "Neue Bewerbung auf Ihr Projekt",
+        "emailType": "html",
+        "message": "<h2>Neue Bewerbung eingegangen</h2><p><strong>{{ $('Bewerber laden').item.json[0]?.company }}</strong> hat sich für Ihr Projekt <strong>{{ $('Webhook: Neue Bewerbung').item.json.body.projectTitle }}</strong> beworben.</p><p><a href='{{ $env.SITE_URL }}/dashboard.html'>Zum Dashboard</a></p>"
+      },
+      "id": "send-email",
+      "name": "E-Mail an Bauunternehmer",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [700, 390]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": true, \"message\": \"Benachrichtigung gesendet\"}"
+      },
+      "id": "webhook-response",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [920, 390]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "match-confirm",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-confirm",
+      "name": "Webhook: Match Bestätigt",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 600]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Stripe Connect Transfer\nconst { matchId, projectId, provisionAmount } = $json.body;\nconst stripeKey = $env.STRIPE_SECRET_KEY;\n\nif (!stripeKey || !provisionAmount) {\n  return [{ json: { success: false, reason: 'No Stripe key or amount' } }];\n}\n\n// Transfer to platform account\nconst resp = await $http.request({\n  method: 'POST',\n  url: 'https://api.stripe.com/v1/transfers',\n  headers: {\n    'Authorization': `Bearer ${stripeKey}`,\n    'Content-Type': 'application/x-www-form-urlencoded'\n  },\n  body: new URLSearchParams({\n    amount: Math.round(provisionAmount * 100).toString(),\n    currency: 'eur',\n    destination: $env.STRIPE_PLATFORM_ACCOUNT || '',\n    description: `BauHub Provision Match ${matchId}`\n  }).toString()\n});\n\nreturn [{ json: { success: true, transfer: resp } }];"
+      },
+      "id": "stripe-transfer",
+      "name": "Stripe: Provision Transfer",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 600]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/matches?id=eq.{{ $('Webhook: Match Bestätigt').item.json.body.matchId }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "requestMethod": "PATCH",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_ROLE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_ROLE_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"status\": \"abgeschlossen\", \"stripe_transfer_id\": \"{{ $json.transfer?.id || '' }}\"}",
+        "options": {}
+      },
+      "id": "update-match",
+      "name": "Supabase: Match abschließen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [680, 600]
+    }
+  ],
+  "connections": {
+    "Webhook: Neue Bewerbung": { "main": [[{ "node": "Bewerber laden", "type": "main", "index": 0 }, { "node": "Projektersteller laden", "type": "main", "index": 0 }]] },
+    "Bewerber laden": { "main": [[{ "node": "E-Mail an Bauunternehmer", "type": "main", "index": 0 }]] },
+    "Projektersteller laden": { "main": [[{ "node": "E-Mail an Bauunternehmer", "type": "main", "index": 0 }]] },
+    "E-Mail an Bauunternehmer": { "main": [[{ "node": "Webhook Response", "type": "main", "index": 0 }]] },
+    "Webhook: Match Bestätigt": { "main": [[{ "node": "Stripe: Provision Transfer", "type": "main", "index": 0 }]] },
+    "Stripe: Provision Transfer": { "main": [[{ "node": "Supabase: Match abschließen", "type": "main", "index": 0 }]] }
+  },
+  "active": true,
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "bauhub" }]
+}

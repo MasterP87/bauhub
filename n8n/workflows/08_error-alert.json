@@ -1,0 +1,112 @@
+{
+  "name": "BauHub – Error & Alert Handler",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "error-alert",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-error",
+      "name": "Webhook: Fehler-Eingang",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body || $json;\nconst severity = body.severity || 'error';\nconst message = body.message || 'Unbekannter Fehler';\nconst context = body.context || {};\nconst timestamp = new Date().toISOString();\n\n// Alarm-Level bestimmen\nconst isCritical = severity === 'critical' || message.toLowerCase().includes('payment') || message.toLowerCase().includes('stripe');\n\nreturn [{ json: { severity, message, context, timestamp, isCritical } }];"
+      },
+      "id": "classify-error",
+      "name": "Fehler klassifizieren",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.SMTP_FROM }}",
+        "toEmail": "={{ $env.ADMIN_EMAIL }}",
+        "subject": "=[{{ $json.isCritical ? '🚨 KRITISCH' : '⚠️ Fehler' }}] BauHub: {{ $json.message.substring(0, 60) }}",
+        "emailType": "html",
+        "message": "=<h2>{{ $json.isCritical ? '🚨 KRITISCHER FEHLER' : '⚠️ Fehler' }}</h2><p><strong>Nachricht:</strong> {{ $json.message }}</p><p><strong>Schweregrad:</strong> {{ $json.severity }}</p><p><strong>Zeitstempel:</strong> {{ new Date($json.timestamp).toLocaleString('de-DE') }}</p><p><strong>Kontext:</strong></p><pre>{{ JSON.stringify($json.context, null, 2) }}</pre><hr><p><a href='{{ $env.SITE_URL }}'>Dashboard öffnen</a></p>"
+      },
+      "id": "send-alert",
+      "name": "Alert-E-Mail senden",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/admin_reports",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "requestMethod": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_ROLE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_ROLE_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"period_start\": \"{{ new Date().toISOString().split('T')[0] }}\", \"period_end\": \"{{ new Date().toISOString().split('T')[0] }}\", \"report_data\": {{ JSON.stringify({ type: 'error_log', ...($('Fehler klassifizieren').item.json) }) }}}",
+        "options": {}
+      },
+      "id": "log-error",
+      "name": "Fehler in DB loggen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [680, 480]
+    },
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "*/5 * * * *" }] }
+      },
+      "id": "healthcheck-cron",
+      "name": "Healthcheck alle 5 Min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [240, 600]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SITE_URL || 'https://bauhub.vercel.app' }}/health",
+        "options": { "timeout": 10000 }
+      },
+      "id": "ping-site",
+      "name": "Website Health Check",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [460, 600]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "apikey", "value": "={{ $env.SUPABASE_ANON_KEY }}" }]
+        },
+        "options": { "timeout": 10000 }
+      },
+      "id": "ping-supabase",
+      "name": "Supabase Health Check",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [460, 720]
+    }
+  ],
+  "connections": {
+    "Webhook: Fehler-Eingang": { "main": [[{ "node": "Fehler klassifizieren", "type": "main", "index": 0 }]] },
+    "Fehler klassifizieren": { "main": [[{ "node": "Alert-E-Mail senden", "type": "main", "index": 0 }, { "node": "Fehler in DB loggen", "type": "main", "index": 0 }]] },
+    "Healthcheck alle 5 Min": { "main": [[{ "node": "Website Health Check", "type": "main", "index": 0 }, { "node": "Supabase Health Check", "type": "main", "index": 0 }]] }
+  },
+  "active": true,
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "bauhub" }]
+}

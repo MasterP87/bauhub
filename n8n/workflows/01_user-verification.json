@@ -1,0 +1,147 @@
+{
+  "name": "BauHub – User Verification",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "user-verify",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-verify",
+      "name": "Webhook: User Verify",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "={{ $env.ANTHROPIC_API_KEY }}" },
+            { "name": "anthropic-version", "value": "2023-06-01" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "claude-opus-4-6"
+            },
+            {
+              "name": "max_tokens",
+              "value": "256"
+            },
+            {
+              "name": "messages",
+              "value": "=[{\"role\":\"user\",\"content\":[{\"type\":\"image\",\"source\":{\"type\":\"url\",\"url\":\"{{ $json.body.fileUrl }}\"}},{\"type\":\"text\",\"text\":\"Ist dieses Dokument eine gültige deutsche Gewerbeanmeldung, Handwerksrolle oder ein Meisterbrief? Antworte nur mit JSON: {\\\"valid\\\": true/false, \\\"document_type\\\": \\\"Typ\\\", \\\"reason\\\": \\\"Grund\\\"}\"}]}]"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "claude-vision",
+      "name": "Claude Vision: Dokument prüfen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $json.content?.[0]?.text || '{}';\nconst match = text.match(/\\{[\\s\\S]*?\\}/);\nconst result = JSON.parse(match ? match[0] : '{}');\nreturn { verified: result.valid === true, document_type: result.document_type, reason: result.reason, userId: $('Webhook: User Verify').item.json.body.userId };"
+      },
+      "id": "parse-result",
+      "name": "Parse Claude Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/users?id=eq.{{ $json.userId }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "requestMethod": "PATCH",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_ROLE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_ROLE_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "verified", "value": "={{ $json.verified }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "update-supabase",
+      "name": "Supabase: Update verified",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/notifications",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "requestMethod": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_ROLE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_ROLE_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "user_id", "value": "={{ $('Parse Claude Result').item.json.userId }}" },
+            { "name": "type", "value": "={{ $('Parse Claude Result').item.json.verified ? 'verification_approved' : 'verification_rejected' }}" },
+            { "name": "title", "value": "={{ $('Parse Claude Result').item.json.verified ? 'Verifizierung erfolgreich' : 'Verifizierung abgelehnt' }}" },
+            { "name": "message", "value": "={{ $('Parse Claude Result').item.json.verified ? 'Ihr Profil wurde verifiziert. Sie können jetzt Projekte annehmen.' : 'Ihr Dokument konnte nicht verifiziert werden: ' + $('Parse Claude Result').item.json.reason }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "send-notification",
+      "name": "Supabase: Send Notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ verified: $('Parse Claude Result').item.json.verified, message: $('Parse Claude Result').item.json.reason }) }}"
+      },
+      "id": "webhook-response",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1340, 300]
+    }
+  ],
+  "connections": {
+    "Webhook: User Verify": { "main": [[{ "node": "Claude Vision: Dokument prüfen", "type": "main", "index": 0 }]] },
+    "Claude Vision: Dokument prüfen": { "main": [[{ "node": "Parse Claude Result", "type": "main", "index": 0 }]] },
+    "Parse Claude Result": { "main": [[{ "node": "Supabase: Update verified", "type": "main", "index": 0 }]] },
+    "Supabase: Update verified": { "main": [[{ "node": "Supabase: Send Notification", "type": "main", "index": 0 }]] },
+    "Supabase: Send Notification": { "main": [[{ "node": "Webhook Response", "type": "main", "index": 0 }]] }
+  },
+  "active": true,
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "bauhub" }]
+}

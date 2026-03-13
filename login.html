@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login &amp; Registrierung – BauHub</title>
+  <meta name="description" content="Melden Sie sich bei BauHub an oder registrieren Sie sich als Bauunternehmer oder Subunternehmer, um Projekte zu verwalten und Matches zu finden.">
+  <meta property="og:title" content="Login/Registrierung – BauHub">
+  <meta property="og:description" content="Greifen Sie auf Ihr BauHub-Konto zu oder erstellen Sie ein neues, um Bauprojekte zu posten, passende Subunternehmer zu finden und Ihr Dashboard zu nutzen.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header role="banner">
+    <div class="container nav">
+      <a href="index.html" class="nav-logo">BauHub</a>
+      <button class="nav-toggle" aria-label="Menü öffnen" aria-controls="primary-menu" aria-expanded="false">☰</button>
+      <nav id="primary-menu" class="nav-menu" aria-label="Hauptmenü">
+        <a href="index.html">Start</a>
+        <a href="verzeichnis.html">Verzeichnis</a>
+        <a href="projekt-erstellen.html">Projekt erstellen</a>
+        <a href="ressourcen.html">Ressourcen</a>
+        <a href="forum.html">Forum</a>
+        <a href="dashboard.html" data-auth-show="logged-in">Dashboard</a>
+        <a href="login.html" aria-current="page" data-auth-show="logged-out">Login/Registrierung</a>
+        <a href="#" data-logout data-auth-show="logged-in">Abmelden</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="auth-container">
+    <h1>Login &amp; Registrierung</h1>
+
+    <div id="auth-message" style="display:none; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.9rem;"></div>
+
+    <div class="auth-tabs" role="tablist">
+      <button role="tab" class="active" data-tab="login" aria-selected="true">Login</button>
+      <button role="tab" data-tab="register" aria-selected="false">Registrierung</button>
+    </div>
+    <div id="auth-panels">
+      <!-- LOGIN -->
+      <div class="auth-panel active" id="login" role="tabpanel">
+        <form id="loginForm" novalidate>
+          <label for="login-email">E-Mail</label>
+          <input type="email" id="login-email" name="email" required autocomplete="email">
+          <label for="login-password">Passwort</label>
+          <input type="password" id="login-password" name="password" required autocomplete="current-password">
+          <button type="submit" id="loginBtn" class="btn-primary">Einloggen</button>
+          <p style="margin-top:1rem;font-size:0.875rem">
+            Noch kein Konto? <a href="#" onclick="document.querySelector('[data-tab=register]').click();return false;">Jetzt registrieren</a>
+          </p>
+        </form>
+      </div>
+
+      <!-- REGISTRIERUNG -->
+      <div class="auth-panel" id="register" role="tabpanel">
+        <form id="registerForm" novalidate>
+          <label for="role">Rolle *</label>
+          <select id="role" name="role" required>
+            <option value="">Bitte wählen</option>
+            <option value="bauunternehmer">Bauunternehmer</option>
+            <option value="subunternehmer">Subunternehmer</option>
+          </select>
+
+          <label for="reg-company">Firmenname *</label>
+          <input type="text" id="reg-company" name="company" required autocomplete="organization">
+
+          <label for="reg-plz">PLZ *</label>
+          <input type="text" id="reg-plz" name="plz" required pattern="[0-9]{5}" placeholder="z.B. 44137">
+
+          <label for="reg-email">E-Mail *</label>
+          <input type="email" id="reg-email" name="email" required autocomplete="email">
+
+          <label for="reg-password">Passwort (min. 8 Zeichen) *</label>
+          <input type="password" id="reg-password" name="password" required minlength="8" autocomplete="new-password">
+
+          <label for="reg-gewerke">Gewerke (für Subunternehmer)</label>
+          <select id="reg-gewerke" name="gewerke" multiple style="height:120px">
+            <option value="Maurerarbeiten">Maurerarbeiten</option>
+            <option value="Betonarbeiten">Betonarbeiten</option>
+            <option value="Zimmerei">Zimmerei</option>
+            <option value="Dachdeckerei">Dachdeckerei</option>
+            <option value="Klempnerei">Klempnerei</option>
+            <option value="Elektro">Elektroinstallation</option>
+            <option value="Maler">Maler- und Lackiererarbeiten</option>
+            <option value="Fliesen">Fliesen- und Plattenarbeiten</option>
+            <option value="Estrich">Estricharbeiten</option>
+            <option value="Trockenbau">Trockenbau</option>
+            <option value="Heizung">Heizungsinstallation</option>
+            <option value="Sanitaer">Sanitärinstallation</option>
+            <option value="Tiefbau">Tiefbauarbeiten</option>
+            <option value="Abbruch">Abbrucharbeiten</option>
+            <option value="Geruestbau">Gerüstbau</option>
+          </select>
+
+          <label for="reg-verification">Handwerksrolle/Gewerbeanmeldung *</label>
+          <input type="file" id="reg-verification" name="verification" accept=".pdf,.jpg,.jpeg,.png,.webp">
+          <small>PDF oder Bild, max. 10 MB – für die KI-Verifizierung Ihres Profils</small>
+
+          <label style="display:flex;align-items:center;gap:0.5rem;margin-top:1rem">
+            <input type="checkbox" id="agb-check" required>
+            <span><a href="agb.html" target="_blank">AGB</a> &amp; <a href="datenschutz.html" target="_blank">Datenschutz</a> akzeptieren *</span>
+          </label>
+
+          <button type="submit" id="registerBtn" class="btn-primary" style="margin-top:1.5rem">Registrieren</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer role="contentinfo">
+    <div class="container">
+      <nav class="footer-links" aria-label="Footer">
+        <a href="impressum.html">Impressum</a>
+        <a href="datenschutz.html">Datenschutz</a>
+        <a href="agb.html">AGB</a>
+        <a href="haftungsausschluss.html">Haftungsausschluss</a>
+        <a href="contact.html">Kontakt</a>
+      </nav>
+      <p class="disclaimer">Reine Vermittlungsplattform – Haftung ausgeschlossen</p>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Nav Toggle
+    document.querySelector('.nav-toggle').addEventListener('click', function() {
+      const exp = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !exp);
+      document.querySelector('.nav-menu').classList.toggle('hidden');
+    });
+
+    // Tab Switching
+    document.querySelectorAll('.auth-tabs button').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.auth-tabs button').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+        document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        tab.setAttribute('aria-selected','true');
+        document.getElementById(tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    function showMsg(msg, type = 'error') {
+      const el = document.getElementById('auth-message');
+      el.textContent = msg;
+      el.style.display = 'block';
+      el.style.background = type === 'error' ? '#fee2e2' : '#dcfce7';
+      el.style.color = type === 'error' ? '#991b1b' : '#166534';
+      el.style.border = `1px solid ${type === 'error' ? '#fca5a5' : '#86efac'}`;
+    }
+
+    // URL-Parameter prüfen
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('verified')) {
+      showMsg('E-Mail bestätigt! Sie können sich jetzt einloggen.', 'success');
+    }
+    if (urlParams.get('redirect')) {
+      showMsg('Bitte einloggen um fortzufahren.', 'info');
+    }
+
+    // LOGIN
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('loginBtn');
+      BauHubAuth.setLoading(btn, true, 'Einloggen...');
+
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+
+      const { data, error } = await BauHubAPI.auth.login(email, password);
+      BauHubAuth.setLoading(btn, false);
+
+      if (error) {
+        showMsg('Fehler: ' + error);
+        return;
+      }
+
+      // Profil laden
+      await BauHubAuth.loadUserProfile();
+      const redirect = urlParams.get('redirect') || 'dashboard.html';
+      window.location.href = redirect;
+    });
+
+    // REGISTRIERUNG
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('registerBtn');
+
+      if (!document.getElementById('agb-check').checked) {
+        showMsg('Bitte AGB und Datenschutz akzeptieren.');
+        return;
+      }
+
+      BauHubAuth.setLoading(btn, true, 'Registrierung läuft...');
+
+      const role = document.getElementById('role').value;
+      const company = document.getElementById('reg-company').value.trim();
+      const plz = document.getElementById('reg-plz').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const gewerkeSel = document.getElementById('reg-gewerke');
+      const gewerke = Array.from(gewerkeSel.selectedOptions).map(o => o.value);
+
+      // Verifizierungsdatei hochladen
+      let fileUrl = null;
+      const fileInput = document.getElementById('reg-verification');
+      if (fileInput.files[0]) {
+        const config = BauHubConfig.supabase;
+        const file = fileInput.files[0];
+        const fileName = `verifications/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+
+        const uploadRes = await fetch(`${config.url}/storage/v1/object/documents/${fileName}`, {
+          method: 'POST',
+          headers: { 'apikey': config.anonKey, 'Content-Type': file.type },
+          body: file,
+        }).catch(() => null);
+
+        if (uploadRes?.ok) {
+          fileUrl = `${config.url}/storage/v1/object/public/documents/${fileName}`;
+        }
+      }
+
+      const { data, error } = await BauHubAPI.users.register({
+        email, password, role, company, plz, gewerke,
+        verification_file: fileUrl,
+      });
+
+      BauHubAuth.setLoading(btn, false);
+
+      if (error) {
+        showMsg('Registrierungsfehler: ' + error);
+        return;
+      }
+
+      showMsg('Registrierung erfolgreich! Bitte E-Mail bestätigen.', 'success');
+      document.getElementById('registerForm').reset();
+    });
+  </script>
+</body>
+</html>

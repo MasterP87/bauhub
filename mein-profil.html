@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mein Profil – BauHub</title>
+  <meta name="description" content="Bearbeiten Sie Ihr BauHub-Profil: Firmenname, PLZ, Gewerke, Beschreibung, Portfolio und Verfügbarkeit.">
+  <meta property="og:title" content="Mein Profil – BauHub">
+  <meta property="og:description" content="Aktualisieren Sie Ihre Unternehmensdaten, Gewerke und Verfügbarkeiten auf BauHub für ein optimales Matching.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header role="banner">
+    <div class="container nav">
+      <a href="index.html" class="nav-logo">BauHub</a>
+      <button class="nav-toggle" aria-label="Menü öffnen" aria-controls="primary-menu" aria-expanded="false">☰</button>
+      <nav id="primary-menu" class="nav-menu" aria-label="Hauptmenü">
+        <a href="index.html">Start</a>
+        <a href="verzeichnis.html">Verzeichnis</a>
+        <a href="projekt-erstellen.html">Projekt erstellen</a>
+        <a href="ressourcen.html">Ressourcen</a>
+        <a href="forum.html">Forum</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="mein-profil.html" aria-current="page">Mein Profil</a>
+        <a href="#" data-logout>Abmelden</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="profile-container">
+    <h1>Mein Profil bearbeiten</h1>
+    <form id="profileForm">
+      <label for="company">Firmenname</label>
+      <input type="text" id="company" name="company" value="" required>
+      <label for="plz">PLZ</label>
+      <input type="text" id="plz" name="plz" pattern="\d{5}" value="" required>
+      <label for="trades">Gewerk(e)</label>
+      <select id="trades" name="trades" multiple size="5">
+        <option value="Mauerer">Mauerer</option>
+        <option value="Betonbauer">Beton- und Stahlbetonbauer</option>
+        <option value="Zimmerer">Zimmerer</option>
+        <option value="Dachdecker">Dachdecker</option>
+        <option value="Elektriker">Elektriker</option>
+        <option value="Sanitaer">Sanitär-, Heizungs- und Klimatechniker</option>
+        <option value="Maler">Maler und Lackierer</option>
+        <option value="Fliesenleger">Fliesen-, Platten- und Mosaikleger</option>
+        <option value="Tiefbauer">Tiefbauer</option>
+        <option value="Strassenbauer">Straßenbauer</option>
+        <option value="Geruestbauer">Gerüstbauer</option>
+        <option value="Tischler">Tischler</option>
+        <option value="Stahlbauer">Stahl- und Metallbauer</option>
+        <option value="Glasbauer">Glasbauer</option>
+        <option value="Bodenleger">Bodenleger</option>
+        <option value="Putzer">Putzer</option>
+        <option value="Stuckateur">Stuckateur</option>
+        <option value="Schlosser">Schlosser</option>
+        <option value="Klempner">Klempner</option>
+        <option value="Gartenbauer">Garten- und Landschaftsbauer</option>
+        <option value="Rohrleitungsbauer">Rohrleitungsbauer</option>
+        <option value="Isolierer">Isolierer</option>
+        <option value="Fassadenbauer">Fassadenbauer</option>
+        <option value="Energieberater">Energieberater</option>
+        <option value="Nachhaltigkeitsberater">Nachhaltigkeitsberater</option>
+        <option value="Baugeraete">Baugeräteführer</option>
+        <option value="Statiker">Statiker / Tragwerksplanung</option>
+        <option value="Altbausanierung">Altbausanierung</option>
+        <option value="Bauleitung">Bauleitung</option>
+      </select>
+      <label for="description">Beschreibung</label>
+      <textarea id="description" name="description"></textarea>
+      <label for="portfolio">Portfolio Fotos (max 20)</label>
+      <input type="file" id="portfolio" name="portfolio" accept="image/*" multiple>
+      <label for="availability">Verfügbarkeitskalender</label>
+      <input type="date" id="availability" name="availability">
+      <button type="button" class="btn btn-accent" style="margin-top:0.5rem;">iCal Export</button>
+      <button type="submit" class="btn btn-primary" style="margin-top:1rem;">Änderungen speichern</button>
+    </form>
+  </main>
+
+  <!-- Footer -->
+  <footer role="contentinfo">
+    <div class="container">
+      <nav class="footer-links" aria-label="Footer">
+        <a href="impressum.html">Impressum</a>
+        <a href="datenschutz.html">Datenschutz</a>
+        <a href="agb.html">AGB</a>
+        <a href="haftungsausschluss.html">Haftungsausschluss</a>
+        <a href="contact.html">Kontakt</a>
+      </nav>
+      <p class="disclaimer">Reine Vermittlungsplattform – Haftung ausgeschlossen</p>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Navigation toggle
+    const navToggle = document.querySelector('.nav-toggle');
+    const navMenu = document.querySelector('.nav-menu');
+    navToggle.addEventListener('click', () => {
+      const expanded = navToggle.getAttribute('aria-expanded') === 'true' || false;
+      navToggle.setAttribute('aria-expanded', !expanded);
+      navMenu.classList.toggle('hidden');
+    });
+
+    // Logout handler
+    const logoutLink = document.querySelector('[data-logout]');
+    if (logoutLink) {
+      logoutLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        BauHubAuth.logout();
+      });
+    }
+
+    // Pre-fill form with current profile data
+    async function loadProfile() {
+      try {
+        const profile = await BauHubAuth.loadUserProfile();
+        if (!profile) return;
+        if (profile.company) {
+          document.getElementById('company').value = profile.company;
+        }
+        if (profile.plz) {
+          document.getElementById('plz').value = profile.plz;
+        }
+        if (profile.description) {
+          document.getElementById('description').value = profile.description;
+        }
+        if (profile.availability) {
+          document.getElementById('availability').value = profile.availability;
+        }
+        if (profile.trades && Array.isArray(profile.trades)) {
+          const tradesSelect = document.getElementById('trades');
+          Array.from(tradesSelect.options).forEach(option => {
+            option.selected = profile.trades.includes(option.value);
+          });
+        }
+      } catch (err) {
+        console.error('Profil konnte nicht geladen werden:', err);
+      }
+    }
+
+    loadProfile();
+
+    // Profile form submission
+    const profileForm = document.getElementById('profileForm');
+    if (profileForm) {
+      profileForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = profileForm.querySelector('button[type="submit"]');
+        const formData = Object.fromEntries(new FormData(e.target));
+        // Collect all selected trades as array
+        const tradesSelect = document.getElementById('trades');
+        formData.trades = Array.from(tradesSelect.selectedOptions).map(o => o.value);
+        BauHubAuth.setLoading(submitBtn, true);
+        try {
+          await BauHubAPI.users.updateProfile(formData);
+          BauHubAuth.toast('Profil aktualisiert und zur Verifizierung gesendet.', 'success');
+        } catch (err) {
+          console.error(err);
+          BauHubAuth.toast('Fehler bei der Aktualisierung.', 'error');
+        } finally {
+          BauHubAuth.setLoading(submitBtn, false);
+        }
+      });
+    }
+  </script>
+</body>
+</html>

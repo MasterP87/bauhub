@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forum – BauHub</title>
+  <meta name="description" content="Diskutieren Sie im BauHub-Forum über Preise, Regulierungen, Tipps und nachhaltiges Bauen. Tauschen Sie sich mit anderen Profis aus.">
+  <meta property="og:title" content="Forum – BauHub">
+  <meta property="og:description" content="Nehmen Sie an Diskussionen über Bauprojekte, Regulierungen, Tipps & Tricks und nachhaltiges Bauen teil.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header role="banner">
+    <div class="container nav">
+      <a href="index.html" class="nav-logo">BauHub</a>
+      <button class="nav-toggle" aria-label="Menü öffnen" aria-controls="primary-menu" aria-expanded="false">☰</button>
+      <nav id="primary-menu" class="nav-menu" aria-label="Hauptmenü">
+        <a href="index.html">Start</a>
+        <a href="verzeichnis.html">Verzeichnis</a>
+        <a href="projekt-erstellen.html">Projekt erstellen</a>
+        <a href="ressourcen.html">Ressourcen</a>
+        <a href="forum.html" aria-current="page">Forum</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="mein-profil.html">Mein Profil</a>
+        <a href="#" data-logout>Abmelden</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="forum-container">
+    <h1>Forum</h1>
+    <div class="forum-tabs" role="tablist">
+      <button role="tab" aria-selected="true" class="active" data-tab="preise">Preise &amp; Kosten</button>
+      <button role="tab" aria-selected="false" data-tab="regulierungen">Regulierungen 2026</button>
+      <button role="tab" aria-selected="false" data-tab="tipps">Tipps &amp; Tricks</button>
+      <button role="tab" aria-selected="false" data-tab="nachhaltig">Nachhaltiges Bauen</button>
+    </div>
+    <div id="forum-panels">
+      <!-- Preise & Kosten Panel -->
+      <div class="forum-panel" id="preise" role="tabpanel">
+        <article class="forum-thread">
+          <h3>Wie kalkuliere ich fair?</h3>
+          <p>Welche Marge ist im Jahr 2026 für Mauerarbeiten angemessen?</p>
+        </article>
+        <article class="forum-thread">
+          <h3>Materialkosten steigen</h3>
+          <p>Hat jemand Tipps, wie man steigende Materialpreise abfangen kann?</p>
+        </article>
+      </div>
+      <!-- Regulierungen 2026 Panel -->
+      <div class="forum-panel hidden" id="regulierungen" role="tabpanel">
+        <article class="forum-thread">
+          <h3>Neue Sicherheitsnormen</h3>
+          <p>Welche Änderungen gibt es bei den Sicherheitsnormen im Bau 2026?</p>
+        </article>
+      </div>
+      <!-- Tipps & Tricks Panel -->
+      <div class="forum-panel hidden" id="tipps" role="tabpanel">
+        <article class="forum-thread">
+          <h3>Effiziente Baustellenplanung</h3>
+          <p>Wie plant ihr eure Baustellen effizient, um Zeit zu sparen?</p>
+        </article>
+      </div>
+      <!-- Nachhaltiges Bauen Panel -->
+      <div class="forum-panel hidden" id="nachhaltig" role="tabpanel">
+        <article class="forum-thread">
+          <h3>Recycling von Baumaterialien</h3>
+          <p>Erfahrungen und Tipps zum Einsatz von Recyclingmaterialien.</p>
+        </article>
+      </div>
+    </div>
+    <div class="new-post">
+      <h2>Neuen Beitrag erstellen</h2>
+      <form id="newPostForm">
+        <input type="text" name="post-title" placeholder="Titel" required>
+        <textarea name="post-content" placeholder="Text" rows="4" required></textarea>
+        <input type="file" name="post-images" accept="image/*" multiple>
+        <button type="submit">Beitrag posten</button>
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer role="contentinfo">
+    <div class="container">
+      <nav class="footer-links" aria-label="Footer">
+        <a href="impressum.html">Impressum</a>
+        <a href="datenschutz.html">Datenschutz</a>
+        <a href="agb.html">AGB</a>
+        <a href="haftungsausschluss.html">Haftungsausschluss</a>
+        <a href="contact.html">Kontakt</a>
+      </nav>
+      <p class="disclaimer">Reine Vermittlungsplattform – Haftung ausgeschlossen</p>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Navigation toggle
+    const navToggle = document.querySelector('.nav-toggle');
+    const navMenu = document.querySelector('.nav-menu');
+    navToggle.addEventListener('click', () => {
+      const expanded = navToggle.getAttribute('aria-expanded') === 'true' || false;
+      navToggle.setAttribute('aria-expanded', !expanded);
+      navMenu.classList.toggle('hidden');
+    });
+
+    // Logout handler
+    const logoutLink = document.querySelector('[data-logout]');
+    if (logoutLink) {
+      logoutLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        BauHubAuth.logout();
+      });
+    }
+
+    // Tab switching logic
+    const tabs = document.querySelectorAll('.forum-tabs button');
+    const panels = document.querySelectorAll('.forum-panel');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => {
+          t.classList.remove('active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        panels.forEach(p => p.classList.add('hidden'));
+        tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
+        document.getElementById(tab.dataset.tab).classList.remove('hidden');
+      });
+    });
+
+    // Load forum posts for current tab
+    async function loadPosts(category) {
+      try {
+        const posts = await BauHubAPI.forum.list({ category });
+        const panel = document.getElementById(category);
+        if (!panel || !posts || !posts.length) return;
+        // Remove existing dynamic posts to avoid duplication
+        panel.querySelectorAll('.forum-thread[data-dynamic]').forEach(el => el.remove());
+        posts.forEach(post => {
+          const article = document.createElement('article');
+          article.className = 'forum-thread';
+          article.setAttribute('data-dynamic', '1');
+          article.innerHTML = `<h3>${post.title}</h3><p>${post.content}</p>`;
+          panel.appendChild(article);
+        });
+      } catch (err) {
+        console.error('Beiträge konnten nicht geladen werden:', err);
+      }
+    }
+
+    // Load posts for the initially active tab
+    const activeTab = document.querySelector('.forum-tabs button.active');
+    if (activeTab) {
+      loadPosts(activeTab.dataset.tab);
+    }
+
+    // Reload posts when switching tabs
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        loadPosts(tab.dataset.tab);
+      });
+    });
+
+    // New post form submission
+    const newPostForm = document.getElementById('newPostForm');
+    if (newPostForm) {
+      newPostForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = newPostForm.querySelector('button[type="submit"]');
+        const formData = Object.fromEntries(new FormData(e.target));
+        const currentActiveTab = document.querySelector('.forum-tabs button.active');
+        if (currentActiveTab) {
+          formData.category = currentActiveTab.dataset.tab;
+        }
+        BauHubAuth.setLoading(submitBtn, true);
+        try {
+          await BauHubAPI.forum.create({
+            title: formData['post-title'],
+            content: formData['post-content'],
+            category: formData.category
+          });
+          BauHubAuth.toast('Beitrag wurde veröffentlicht.', 'success');
+          newPostForm.reset();
+          if (formData.category) {
+            loadPosts(formData.category);
+          }
+        } catch (err) {
+          console.error(err);
+          BauHubAuth.toast('Fehler beim Posten des Beitrags.', 'error');
+        } finally {
+          BauHubAuth.setLoading(submitBtn, false);
+        }
+      });
+    }
+  </script>
+</body>
+</html>
